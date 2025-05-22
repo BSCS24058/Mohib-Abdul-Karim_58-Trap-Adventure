@@ -6,7 +6,7 @@ A thrilling 2D dungeon exploration game built using C++ and Raylib. The player n
 
 ## 🗺️ Overview
 
-Trap Dungeon Game is designed as a semester project to demonstrate core Object-Oriented Programming principles. The gameplay revolves around reflexes, memory, and strategy as players dodge moving traps and enemies. Each level is handcrafted and stored in external files for modular design and easy updates.
+The gameplay revolves around reflexes, memory, and strategy as players dodge moving traps and enemies. Each level is handcrafted and stored in external files for modular design and easy updates.
 
 The player has a set number of lives and health points. Getting hit by traps or enemies results in damage or death. Players must complete all levels to win the game.
 
@@ -26,9 +26,7 @@ The player has a set number of lives and health points. Getting hit by traps or 
 
 ## 🎮 Controls
 
-- **Arrow Keys** – Move Player  
-- **R** – Reset Current Level  
-- **ESC** – Quit Game
+Yet to be decided
 
 ---
 
@@ -55,15 +53,6 @@ The player has a set number of lives and health points. Getting hit by traps or 
 
 ---
 
-## ✅ How to Run
+## 🧪 To Sum Up
 
-1. Clone the repository  
-2. Make sure Raylib is set up in your C++ environment  
-3. Build using your favorite compiler  
-4. Run and enjoy the chaos!
-
----
-
-## 🧪 Final Notes
-
-This project showcases deep use of OOP, file handling, templates, and memory management in C++. Perfect for game dev beginners and OOP learners.
+This project showcases deep use of OOP, file handling, templates, and memory management in C++. An ideal project for nostalgic gamers and coders
