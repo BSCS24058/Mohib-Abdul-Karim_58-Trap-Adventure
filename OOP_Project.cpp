@@ -5,12 +5,19 @@
 #include<sstream>
 #include"MyStr.h"
 #include"button.hpp"
+#include <thread>
+#include <atomic>
 
 #define TOTAL_TITLE_FRAMES 200
 #define TOTAL_MENU_FRAMES 317
 #define FRAME_RATE 60
 
 using namespace std;
+
+vector<Texture2D> frames;
+vector<Texture2D> menuFrames;
+atomic<bool> framesLoaded(false);
+
 
 MyStr GetTitlePath(int index) {
     MyStrStream ss;
@@ -67,7 +74,34 @@ MyStr GetMenuPath(int index) {
     return ss.str();
 }
 
+void LoadTitleFrames() {
+    for (int i = 0; i < TOTAL_TITLE_FRAMES; i++) {
+        MyStr path = GetTitlePath(i);
+        Image img = LoadImage(path.fetchstr());
+        frames.push_back(LoadTextureFromImage(img));
+        UnloadImage(img);
+    }
+}
+
+void LoadMenuFrames() {
+    for (int i = 0; i < TOTAL_MENU_FRAMES; i++) {
+        MyStr path = GetMenuPath(i);
+        Image img = LoadImage(path.fetchstr());
+        menuFrames.push_back(LoadTextureFromImage(img));
+        UnloadImage(img);
+    }
+}
+
+void LoadAllFrames() {
+    thread titlethread(LoadTitleFrames);
+    thread menuthread(LoadMenuFrames);
+    titlethread.join();
+    menuthread.join();
+    framesLoaded = true;
+}
+
 enum GameStates {
+    Loading,
     Title,
     Title_To_Menu,
     Menu,
@@ -83,28 +117,28 @@ int main() {
     InitWindow(screenWidth, screenHeight, "Trap Adventure");
     SetTargetFPS(FRAME_RATE);
 
-    vector<Texture2D> frames;
-    for (int i = 0; i < TOTAL_TITLE_FRAMES; i++) {
+    thread loader(LoadAllFrames);
+
+    /*for (int i = 0; i < TOTAL_TITLE_FRAMES; i++) {
         MyStr path = GetTitlePath(i);
         Image img = LoadImage(path.fetchstr());
         frames.push_back(LoadTextureFromImage(img));
         UnloadImage(img);
     }
-    
-    vector<Texture2D> menuFrames;
-    for (int i = 0; i < TOTAL_MENU_FRAMES; i++) {
-        MyStr path = GetMenuPath(i);
-        Image img = LoadImage(path.fetchstr());
-        menuFrames.push_back(LoadTextureFromImage(img));
-        UnloadImage(img);
-    }
-    
+
+     for (int i = 0; i < TOTAL_MENU_FRAMES; i++) {
+         MyStr path = GetMenuPath(i);
+         Image img = LoadImage(path.fetchstr());
+         menuFrames.push_back(LoadTextureFromImage(img));
+         UnloadImage(img);
+     }*/
+
     InitAudioDevice();
     Music bgMusic = LoadMusicStream("C:/Users/User/Downloads/Music/Little Nightmares 2 OST Track 1 - Little Nightmares II Main Theme_2.mp3");   // For background music
     PlayMusicStream(bgMusic);
     bgMusic.looping = true;
 
-    GameStates Current_State = Title;
+    GameStates Current_State = Loading;
 
     //For Title Screen
     int framecount = 0;
@@ -125,15 +159,15 @@ int main() {
     UnloadTexture(tempTex);
 
     Vector2 startPos = { (float)(screenWidth - buttonWidth) / 2, (float)(screenHeight / 2 - 325) };
-    Vector2 exitPos = { (float)(screenWidth - buttonWidth) / 2, (float)(screenHeight / 2-100) };
+    Vector2 exitPos = { (float)(screenWidth - buttonWidth) / 2, (float)(screenHeight / 2 - 100) };
 
-       
+
     Button startButton{ "C:/Users/User/OneDrive/Documents/Project1/Start_Button (3).png", startPos, buttonScale };
     Button exitButton{ "C:/Users/User/OneDrive/Documents/Project1/End_Button.png", exitPos, buttonScale };
 
 
     bool exit = false;
-    while (!WindowShouldClose() && exit==false) {
+    while (!WindowShouldClose() && exit == false) {
 
         UpdateMusicStream(bgMusic);
 
@@ -157,6 +191,16 @@ int main() {
         ClearBackground(BLACK);
 
         switch (Current_State) {
+        case Loading:
+
+            if ((GetTime() * 2) - (int)(GetTime() * 2) < 1)   
+                DrawText("Loading...",
+                    (screenWidth - MeasureText("Loading...", 40)) / 2,
+                    (screenHeight - 40) / 2, 40, WHITE);
+
+            if (framesLoaded) Current_State = Title;
+            break;
+
         case Title:
             DrawTexture(frames[currentFrame], 0, 0, WHITE);
             if ((framecount / 60) % 2 == 0) {
@@ -201,7 +245,7 @@ int main() {
         case Title_To_Menu:
             DrawTexture(frames[currentFrame], 0, 0, WHITE);
 
-            fade_opacity += GetFrameTime()/2;
+            fade_opacity += GetFrameTime() / 2;
             if (fade_opacity >= 1.0) {
                 fade_opacity = 1.0;
                 Current_State = Menu;
@@ -213,24 +257,24 @@ int main() {
 
         case Menu:
             ClearBackground(BLACK);
-            fade_opacity -= GetFrameTime()/2;
+            fade_opacity -= GetFrameTime() / 2;
             if (fade_opacity <= 0.0) {
                 fade_opacity = 0.0;
             }
 
-            DrawTexture(menuFrames[menuCurrentFrame],0,0,WHITE);
+            DrawTexture(menuFrames[menuCurrentFrame], 0, 0, WHITE);
             startButton.Draw();
             exitButton.Draw();
             DrawRectangle(0, 0, screenWidth, screenHeight, Fade(BLACK, fade_opacity));
 
             Vector2 mousePosition = GetMousePosition();
             bool mousePressed = IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
-            
+
             if (startButton.isPressed(mousePosition, mousePressed))
             {
                 Current_State = Menu_To_PreStart;
             }
-            
+
             if (exitButton.isPressed(mousePosition, mousePressed))
             {
                 exit = true;
@@ -238,25 +282,25 @@ int main() {
             break;
 
 
-       /* case Menu_To_PreStart:
-            DrawTexture(menuFrames[menuCurrentFrame], 0, 0, WHITE);
-            fade_opacity += GetFrameTime() / 2;
-            if (fade_opacity >= 1.0) {
-                fade_opacity = 1.0;
-                Current_State = PreStart;
-            }
+            /* case Menu_To_PreStart:
+                 DrawTexture(menuFrames[menuCurrentFrame], 0, 0, WHITE);
+                 fade_opacity += GetFrameTime() / 2;
+                 if (fade_opacity >= 1.0) {
+                     fade_opacity = 1.0;
+                     Current_State = PreStart;
+                 }
 
-            DrawRectangle(0, 0, screenWidth, screenHeight, Fade(BLACK, fade_opacity));
-            break;
+                 DrawRectangle(0, 0, screenWidth, screenHeight, Fade(BLACK, fade_opacity));
+                 break;
 
 
 
-        case PreStart:
-            ClearBackground(BLACK);
-            fade_opacity -= GetFrameTime() / 2;
-            if (fade_opacity <= 0.0) {
-                fade_opacity = 0.0;
-            }*/
+             case PreStart:
+                 ClearBackground(BLACK);
+                 fade_opacity -= GetFrameTime() / 2;
+                 if (fade_opacity <= 0.0) {
+                     fade_opacity = 0.0;
+                 }*/
 
 
 
@@ -271,10 +315,6 @@ int main() {
 
 
 
-       
-
-
-       
 
 
 
@@ -288,10 +328,17 @@ int main() {
 
 
 
-      
-      
+
+
+
+
+
+
         EndDrawing();
     }
+
+    if (loader.joinable()) loader.join();    
+
 
     for (auto& tex : frames) {
         UnloadTexture(tex);
@@ -304,9 +351,9 @@ int main() {
     CloseAudioDevice();
     CloseWindow();
 
-    
 
-	return 0;
+
+    return 0;
 }
 
 
