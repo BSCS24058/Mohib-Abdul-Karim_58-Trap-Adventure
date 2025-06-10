@@ -56,6 +56,8 @@ public:
     //Joining MyStrs
     MyStr concat(const MyStr& s2)const;
     MyStr& append(const MyStr& s2);
+
+
     //Finding functions
     int find_first(char ch);
     int find_first(const MyStr& str) const;
@@ -69,6 +71,8 @@ public:
 
 
     //Add and remove functions
+    void pop_back();
+    void push_back(char ch);
     void remove_at(int idx);
     void insert_at(int idx, char ch);
     void insert_at(int idx, const MyStr sub);
@@ -84,11 +88,13 @@ public:
     void ToLower();
 
 
-
+    //Operator Overloading
     MyStr& operator=(const MyStr& other);
     MyStr operator+(const MyStr& other);
+    MyStr& operator+=(const char ch);
     friend ostream& operator<<(ostream& os, const MyStr& str);
     friend istream& operator>>(istream& is, MyStr& str);
+    bool empty() const;
     ~MyStr();
 
 

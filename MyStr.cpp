@@ -651,7 +651,7 @@ void MyStr::ToLower() {
     }
 }
 
-
+//Operator overloads
 MyStr& MyStr::operator=(const MyStr& other) {
     delete[]this->Cs;
     len = other.len;
@@ -682,6 +682,10 @@ MyStr MyStr::operator+(const MyStr& other) {
     res.Cs[res.len] = '\0';
     return res;
 }
+MyStr& MyStr::operator+=(const char ch) {  
+    this->push_back(ch);  
+    return *this;  
+}
 ostream& operator<<(ostream& os, const MyStr& str) {
     for (int i = 0; i < str.len; i++) {
         os << str.Cs[i];
@@ -691,13 +695,9 @@ ostream& operator<<(ostream& os, const MyStr& str) {
 MyStr::~MyStr() {
     delete[] Cs;
 }
-
-
 MyStr operator+(const MyStr& str1, const MyStr& str2) {
     return str1.concat(str2);
 }
-
-
 istream& operator>>(istream& is, MyStr& str) {
     char temp[1024];
     is.getline(temp, 1024, ',');
@@ -709,6 +709,39 @@ istream& operator>>(istream& is, MyStr& str) {
 const char* MyStr::fetchstr() const {
     return Cs;
 }
+
+void MyStr::pop_back() {
+    if (len > 0) {
+        Cs[--len] = '\0';
+    }
+}
+
+
+void MyStr::push_back(char ch) {
+    if (len + 1 >= cap) {
+        cap = len + 10;
+        char* newCs = new char[cap];
+        for (int i = 0; i < len; ++i) { newCs[i] = Cs[i]; }
+        delete[] Cs;
+        Cs = newCs;
+    }
+    Cs[len++] = ch;
+    Cs[len] = '\0';
+}
+
+bool MyStr::empty() const {
+    if (len == 0) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+
+
+
+
 
 
 

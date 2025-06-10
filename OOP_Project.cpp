@@ -7,6 +7,7 @@
 #include"button.hpp"
 #include <thread>
 #include <atomic>
+#include "Player.h"
 
 #define TOTAL_TITLE_FRAMES 200
 #define TOTAL_MENU_FRAMES 317
@@ -16,7 +17,7 @@ using namespace std;
 
 vector<Texture2D> frames;
 vector<Texture2D> menuFrames;
-atomic<bool> framesLoaded(false);
+//atomic<bool> framesLoaded(false);
 
 
 MyStr GetTitlePath(int index) {
@@ -92,13 +93,13 @@ void LoadMenuFrames() {
     }
 }
 
-void LoadAllFrames() {
-    thread titlethread(LoadTitleFrames);
-    thread menuthread(LoadMenuFrames);
-    titlethread.join();
-    menuthread.join();
-    framesLoaded = true;
-}
+//void LoadAllFrames() {
+//    thread titlethread(LoadTitleFrames);
+//    thread menuthread(LoadMenuFrames);
+//    titlethread.join();
+//    menuthread.join();
+//    framesLoaded = true;
+//}
 
 enum GameStates {
     Loading,
@@ -117,28 +118,18 @@ int main() {
     InitWindow(screenWidth, screenHeight, "Trap Adventure");
     SetTargetFPS(FRAME_RATE);
 
-    thread loader(LoadAllFrames);
+    //thread loader(LoadAllFrames);
 
-    /*for (int i = 0; i < TOTAL_TITLE_FRAMES; i++) {
-        MyStr path = GetTitlePath(i);
-        Image img = LoadImage(path.fetchstr());
-        frames.push_back(LoadTextureFromImage(img));
-        UnloadImage(img);
-    }
-
-     for (int i = 0; i < TOTAL_MENU_FRAMES; i++) {
-         MyStr path = GetMenuPath(i);
-         Image img = LoadImage(path.fetchstr());
-         menuFrames.push_back(LoadTextureFromImage(img));
-         UnloadImage(img);
-     }*/
+    LoadTitleFrames();
+    LoadMenuFrames();
+	//framesLoaded = true;
 
     InitAudioDevice();
     Music bgMusic = LoadMusicStream("C:/Users/User/Downloads/Music/Little Nightmares 2 OST Track 1 - Little Nightmares II Main Theme_2.mp3");   // For background music
     PlayMusicStream(bgMusic);
     bgMusic.looping = true;
 
-    GameStates Current_State = Loading;
+    GameStates Current_State = Title;
 
     //For Title Screen
     int framecount = 0;
@@ -152,6 +143,8 @@ int main() {
     int menuCurrentFrame = 0;
     float menuFrameTimer = 0.0f;
 
+
+    // Scaling and Loading button--------------------
     float buttonScale = 0.3f;
     Texture2D tempTex = LoadTexture("C:/Users/User/OneDrive/Documents/Project1/End_Button.png");
     int buttonWidth = tempTex.width * buttonScale;
@@ -161,12 +154,26 @@ int main() {
     Vector2 startPos = { (float)(screenWidth - buttonWidth) / 2, (float)(screenHeight / 2 - 325) };
     Vector2 exitPos = { (float)(screenWidth - buttonWidth) / 2, (float)(screenHeight / 2 - 100) };
 
-
     Button startButton{ "C:/Users/User/OneDrive/Documents/Project1/Start_Button (3).png", startPos, buttonScale };
     Button exitButton{ "C:/Users/User/OneDrive/Documents/Project1/End_Button.png", exitPos, buttonScale };
+    //----------------------------------------------
+
+
+    //Player declaration and info prompt----------------------------------------
+
+    Player PL1;
+
+    MyStr name = "";
+    int letterCount = 0;
+    int maxLetters = 20;
+    bool nameEntered = false;
+    //--------------------------------------------------
+
+
 
 
     bool exit = false;
+
     while (!WindowShouldClose() && exit == false) {
 
         UpdateMusicStream(bgMusic);
@@ -191,17 +198,18 @@ int main() {
         ClearBackground(BLACK);
 
         switch (Current_State) {
-        case Loading:
+       /* case Loading: {
 
-            if ((GetTime() * 2) - (int)(GetTime() * 2) < 1)   
+            if ((GetTime() * 2) - (int)(GetTime() * 2) < 1)
                 DrawText("Loading...",
                     (screenWidth - MeasureText("Loading...", 40)) / 2,
                     (screenHeight - 40) / 2, 40, WHITE);
 
             if (framesLoaded) Current_State = Title;
             break;
+        }*/
 
-        case Title:
+        case Title: {
             DrawTexture(frames[currentFrame], 0, 0, WHITE);
             if ((framecount / 60) % 2 == 0) {
                 MyStr GameTitle = "Trap Adventure";
@@ -241,8 +249,9 @@ int main() {
             }
 
             break;
+        }
 
-        case Title_To_Menu:
+        case Title_To_Menu: {
             DrawTexture(frames[currentFrame], 0, 0, WHITE);
 
             fade_opacity += GetFrameTime() / 2;
@@ -254,8 +263,9 @@ int main() {
             DrawRectangle(0, 0, screenWidth, screenHeight, Fade(BLACK, fade_opacity));
             break;
 
+        }
 
-        case Menu:
+        case Menu: {
             ClearBackground(BLACK);
             fade_opacity -= GetFrameTime() / 2;
             if (fade_opacity <= 0.0) {
@@ -280,64 +290,92 @@ int main() {
                 exit = true;
             }
             break;
+        }
 
+        case Menu_To_PreStart: {
 
-            /* case Menu_To_PreStart:
-                 DrawTexture(menuFrames[menuCurrentFrame], 0, 0, WHITE);
-                 fade_opacity += GetFrameTime() / 2;
-                 if (fade_opacity >= 1.0) {
-                     fade_opacity = 1.0;
-                     Current_State = PreStart;
-                 }
+            DrawTexture(menuFrames[menuCurrentFrame], 0, 0, WHITE);
+            fade_opacity += GetFrameTime() / 2;
+            if (fade_opacity >= 1.0) {
+                fade_opacity = 1.0;
+                Current_State = PreStart;
+            }
 
-                 DrawRectangle(0, 0, screenWidth, screenHeight, Fade(BLACK, fade_opacity));
-                 break;
-
-
-
-             case PreStart:
-                 ClearBackground(BLACK);
-                 fade_opacity -= GetFrameTime() / 2;
-                 if (fade_opacity <= 0.0) {
-                     fade_opacity = 0.0;
-                 }*/
-
-
-
-
-
-
-
-
-
+            DrawRectangle(0, 0, screenWidth, screenHeight, Fade(BLACK, fade_opacity));
+            break;
 
         }
 
+        case PreStart: {
+            ClearBackground(BLACK);
+            fade_opacity -= GetFrameTime() / 2;
+            if (fade_opacity <= 0.0) {
+                fade_opacity = 0.0;
+            }
 
 
 
+            if (!nameEntered) {
+                int key = GetCharPressed();
 
+                while (key > 0) {
+                    if ((key >= 32) && (key <= 125) && (letterCount < maxLetters)) {
+                        name.push_back((char)key);
+                        letterCount++;
+                    }
+                    key = GetCharPressed();
+                }
 
+                if (IsKeyPressed(KEY_BACKSPACE) && !name.empty()) {
+                    name.pop_back();
+                    letterCount--;
+                }
 
+                if (IsKeyPressed(KEY_ENTER)) {
+                    nameEntered = true;
+                }
+            }
 
+            ClearBackground(BLACK);
 
+            const char* prompt = "Enter Player name:";
+            int promptFontSize = 40;
+            int promptX = (GetScreenWidth() - MeasureText(prompt, promptFontSize)) / 2;
+            int promptY = (GetScreenHeight() / 2) - 100;
 
+            int boxWidth = 500;
+            int boxHeight = 60;
+            int boxX = (GetScreenWidth() - boxWidth) / 2;
+            int boxY = (GetScreenHeight() / 2) - 20;
 
+            DrawText(prompt, promptX, promptY, promptFontSize, YELLOW);
 
+            DrawRectangle(boxX, boxY, boxWidth, boxHeight, SKYBLUE);
+            DrawRectangle(boxX + 4, boxY + 4, boxWidth - 8, boxHeight - 8, RAYWHITE);
 
+            if (!name.empty()) {
+                DrawText(name.fetchstr(), boxX + 16, boxY + (boxHeight - 30) / 2, 30, DARKBLUE);
+            }
 
+            if (nameEntered) {
+                PL1.setName(name);
 
+                MyStr welcome = "Welcome, " + MyStr(name.fetchstr()) + "!";
+                int welcomeFontSize = 40;
+                int welcomeWidth = MeasureText(welcome.fetchstr(), welcomeFontSize);
+                DrawText(welcome.fetchstr(), (GetScreenWidth() - welcomeWidth) / 2, boxY + boxHeight + 70, welcomeFontSize, ORANGE);
+            }
 
+            DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Fade(BLACK, fade_opacity));
+            break;
+        }
 
+        }
 
-
-
-
-
-        EndDrawing();
+       EndDrawing();
     }
 
-    if (loader.joinable()) loader.join();    
+    //if (loader.joinable()) loader.join();    
 
 
     for (auto& tex : frames) {
@@ -357,68 +395,6 @@ int main() {
 }
 
 
-
-
-//#include "raylib.h"
-//#include <string>
-//
-//int main() {
-//    const int screenWidth = 800;
-//    const int screenHeight = 450;
-//
-//    InitWindow(screenWidth, screenHeight, "Character Name Input");
-//
-//    SetTargetFPS(60);
-//
-//    std::string name = "";          // Stores the entered name
-//    int letterCount = 0;
-//    int maxLetters = 20;           // Max character limit
-//    bool nameEntered = false;
-//
-//    while (!WindowShouldClose()) {
-//        if (!nameEntered) {
-//            int key = GetCharPressed();
-//
-//            // Accept characters a-z, A-Z, 0-9, and basic symbols
-//            while (key > 0) {
-//                if ((key >= 32) && (key <= 125) && (letterCount < maxLetters)) {
-//                    name += (char)key;
-//                    letterCount++;
-//                }
-//                key = GetCharPressed();
-//            }
-//
-//            // Backspace removes last character
-//            if (IsKeyPressed(KEY_BACKSPACE) && !name.empty()) {
-//                name.pop_back();
-//                letterCount--;
-//            }
-//
-//            // Enter key finishes input
-//            if (IsKeyPressed(KEY_ENTER)) {
-//                nameEntered = true;
-//            }
-//        }
-//
-//        BeginDrawing();
-//        ClearBackground(RAYWHITE);
-//
-//        DrawText("Enter character name:", 100, 100, 30, DARKGRAY);
-//        DrawRectangle(100, 140, 600, 40, LIGHTGRAY);  // input box
-//        DrawText(name.c_str(), 110, 150, 20, BLACK);
-//
-//        if (nameEntered) {
-//            DrawText("Name entered!", 100, 200, 30, GREEN);
-//            DrawText(("Welcome, " + name + "!").c_str(), 100, 240, 30, MAROON);
-//        }
-//
-//        EndDrawing();
-//    }
-//
-//    CloseWindow();
-//
-//    return 0;
-//}
 
 //#include "raylib.h"
 //#include <cstring>
