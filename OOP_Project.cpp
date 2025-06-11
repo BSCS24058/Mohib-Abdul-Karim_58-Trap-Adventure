@@ -5,9 +5,11 @@
 #include<sstream>
 #include"MyStr.h"
 #include"button.hpp"
-#include <thread>
-#include <atomic>
+//#include <thread>
+//#include <atomic>
 #include "Player.h"
+#include"Level.h"
+#include"Dungeon.h"
 
 #define TOTAL_TITLE_FRAMES 200
 #define TOTAL_MENU_FRAMES 317
@@ -107,7 +109,9 @@ enum GameStates {
     Menu,
     Menu_To_PreStart,
     PreStart,
-    Difficulty_Selection
+    Difficulty_Selection,
+    Loading_Level_1,
+	Level_1,
 };
 
 bool startfade = false;
@@ -149,6 +153,8 @@ int main() {
     int menuCurrentFrame = 0;
     float menuFrameTimer = 0.0f;
 
+    //For level 1 Loading
+    float loadingLevel1Timer = 0.0f;
 
     // ===== Title Screen Buttons =============================================
     float titleButtonScale = 0.3f;
@@ -197,6 +203,12 @@ int main() {
     //--------------------------------------------------
 
 
+    //Making Levels======================================================
+
+    Level level1;
+	Dungeon dungeon1;
+
+    //====================================================================
 
 
     bool exit = false;
@@ -433,11 +445,33 @@ int main() {
 			ProButton.Draw();
 			HardcoreButton.Draw();
             DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Fade(BLACK, fade_opacity));
+
+            Vector2 mousePosition = GetMousePosition();
+            bool mousePressed = IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
+
+            if (NoobButton.isPressed(mousePosition, mousePressed)){
+                Current_State = Loading_Level_1;
+                loadingLevel1Timer = 0.0f; // Reset timer when entering loading state
+            }
             
             break;
         }
 
+        case Loading_Level_1: {
+            ClearBackground(BLACK);
+            DrawText("Loading Level 1...", (GetScreenWidth() - MeasureText("Loading Level 1...", 40)) / 2, (GetScreenHeight() - 40) / 2, 40, WHITE);
+
+            loadingLevel1Timer += GetFrameTime();
+            if (loadingLevel1Timer >= 3.0f) {
+                Current_State = Level_1;
+            }
+            break;
         }
+
+        case Level_1: {
+            ClearBackground(BLACK);
+            
+		}
 
        EndDrawing();
     }
