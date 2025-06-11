@@ -24,6 +24,7 @@ MyStr::MyStr(const char* p) {
     for (int i = 0; i < len; i++) {
         Cs[i] = p[i];
     }
+    Cs[len] = '\0';
 }
 MyStr::MyStr(char ch, int size) {
     len = size;

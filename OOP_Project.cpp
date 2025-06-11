@@ -83,7 +83,6 @@ void LoadTitleFrames() {
         UnloadImage(img);
     }
 }
-
 void LoadMenuFrames() {
     for (int i = 0; i < TOTAL_MENU_FRAMES; i++) {
         MyStr path = GetMenuPath(i);
@@ -107,9 +106,12 @@ enum GameStates {
     Title_To_Menu,
     Menu,
     Menu_To_PreStart,
-    PreStart
+    PreStart,
+    Difficulty_Selection
 };
 
+bool startfade = false;
+bool enterReleasedAfterName = false;
 
 int main() {
     const int screenWidth = 1280;
@@ -124,10 +126,14 @@ int main() {
     LoadMenuFrames();
 	//framesLoaded = true;
 
+
+
+	//audio initialization-------------------------------
     InitAudioDevice();
     Music bgMusic = LoadMusicStream("C:/Users/User/Downloads/Music/Little Nightmares 2 OST Track 1 - Little Nightmares II Main Theme_2.mp3");   // For background music
     PlayMusicStream(bgMusic);
     bgMusic.looping = true;
+    //------------------------------------------------------------
 
     GameStates Current_State = Title;
 
@@ -144,23 +150,44 @@ int main() {
     float menuFrameTimer = 0.0f;
 
 
-    // Scaling and Loading button--------------------
-    float buttonScale = 0.3f;
+    // ===== Title Screen Buttons =============================================
+    float titleButtonScale = 0.3f;
     Texture2D tempTex = LoadTexture("C:/Users/User/OneDrive/Documents/Project1/End_Button.png");
-    int buttonWidth = tempTex.width * buttonScale;
-    int buttonHeight = tempTex.height * buttonScale;
+    int titleButtonWidth = tempTex.width * titleButtonScale;
+    int titleButtonHeight = tempTex.height * titleButtonScale;
     UnloadTexture(tempTex);
 
-    Vector2 startPos = { (float)(screenWidth - buttonWidth) / 2, (float)(screenHeight / 2 - 325) };
-    Vector2 exitPos = { (float)(screenWidth - buttonWidth) / 2, (float)(screenHeight / 2 - 100) };
+    Vector2 startMenuButtonPos = { (float)(screenWidth - titleButtonWidth) / 2, (float)(screenHeight / 2 - 325) };
+    Vector2 exitMenuButtonPos = { (float)(screenWidth - titleButtonWidth) / 2, (float)(screenHeight / 2 - 100) };
 
-    Button startButton{ "C:/Users/User/OneDrive/Documents/Project1/Start_Button (3).png", startPos, buttonScale };
-    Button exitButton{ "C:/Users/User/OneDrive/Documents/Project1/End_Button.png", exitPos, buttonScale };
-    //----------------------------------------------
+    Button startMenuButton{ "C:/Users/User/OneDrive/Documents/Project1/Start_Button (3).png", startMenuButtonPos, titleButtonScale };
+    Button exitMenuButton{ "C:/Users/User/OneDrive/Documents/Project1/End_Button.png", exitMenuButtonPos, titleButtonScale };
+    //======================================================================================================
+
+
+
+    // ===== Difficulty Selection Buttons ==================================================================
+    float difficultyButtonScale = 0.4f;
+    int buttonSpacing = 60;
+
+    tempTex = LoadTexture("C:/Github Repositories/Trap-Adventure-Game/Noob_Button.jpg");
+    int difficultyButtonWidth = tempTex.width * difficultyButtonScale;
+    int difficultyButtonHeight = tempTex.height * difficultyButtonScale;
+    UnloadTexture(tempTex);
+
+    float centerX = (float)(screenWidth - difficultyButtonWidth) / 2;
+
+    Vector2 noobButtonPos = { centerX, (float)(screenHeight / 2 - difficultyButtonHeight - buttonSpacing) };
+    Vector2 proButtonPos = { centerX, (float)(screenHeight / 2) };
+    Vector2 hardcoreButtonPos = { centerX, (float)(screenHeight / 2 + difficultyButtonHeight + buttonSpacing) };
+
+    Button NoobButton{ "C:/Github Repositories/Trap-Adventure-Game/Noob_Button.jpg", noobButtonPos, difficultyButtonScale };
+    Button ProButton{ "C:/Github Repositories/Trap-Adventure-Game/Pro_Button.jpg", proButtonPos, difficultyButtonScale };
+    Button HardcoreButton{ "C:/Github Repositories/Trap-Adventure-Game/Hardcore_Button.jpg", hardcoreButtonPos, difficultyButtonScale };
+	//======================================================================================================
 
 
     //Player declaration and info prompt----------------------------------------
-
     Player PL1;
 
     MyStr name = "";
@@ -273,19 +300,19 @@ int main() {
             }
 
             DrawTexture(menuFrames[menuCurrentFrame], 0, 0, WHITE);
-            startButton.Draw();
-            exitButton.Draw();
+            startMenuButton.Draw();
+            exitMenuButton.Draw();
             DrawRectangle(0, 0, screenWidth, screenHeight, Fade(BLACK, fade_opacity));
 
             Vector2 mousePosition = GetMousePosition();
             bool mousePressed = IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
 
-            if (startButton.isPressed(mousePosition, mousePressed))
+            if (startMenuButton.isPressed(mousePosition, mousePressed))
             {
                 Current_State = Menu_To_PreStart;
             }
 
-            if (exitButton.isPressed(mousePosition, mousePressed))
+            if (exitMenuButton.isPressed(mousePosition, mousePressed))
             {
                 exit = true;
             }
@@ -307,15 +334,15 @@ int main() {
         }
 
         case PreStart: {
+
             ClearBackground(BLACK);
-            fade_opacity -= GetFrameTime() / 2;
-            if (fade_opacity <= 0.0) {
-                fade_opacity = 0.0;
-            }
-
-
-
+            
             if (!nameEntered) {
+
+                fade_opacity -= GetFrameTime() / 2;
+                if (fade_opacity <= 0.0) {
+                    fade_opacity = 0.0;
+                }
                 int key = GetCharPressed();
 
                 while (key > 0) {
@@ -333,6 +360,16 @@ int main() {
 
                 if (IsKeyPressed(KEY_ENTER)) {
                     nameEntered = true;
+                    enterReleasedAfterName = false; // Reset for debounce
+                }
+            }
+            else {
+                // Debounce: Wait for Enter to be released before accepting the next press
+                if (!IsKeyDown(KEY_ENTER)) {
+                    enterReleasedAfterName = true;
+                }
+                if (enterReleasedAfterName && IsKeyPressed(KEY_ENTER) && !startfade) {
+                    startfade = true;
                 }
             }
 
@@ -363,10 +400,40 @@ int main() {
                 MyStr welcome = "Welcome, " + MyStr(name.fetchstr()) + "!";
                 int welcomeFontSize = 40;
                 int welcomeWidth = MeasureText(welcome.fetchstr(), welcomeFontSize);
-                DrawText(welcome.fetchstr(), (GetScreenWidth() - welcomeWidth) / 2, boxY + boxHeight + 70, welcomeFontSize, ORANGE);
+                DrawText(welcome.fetchstr(), (GetScreenWidth() - welcomeWidth) / 2, boxY + boxHeight + 40, welcomeFontSize, ORANGE);
+
+                MyStr PressEnt = "Press Enter To Continue";
+                int PressEntFontSize = 40;
+                int  PressEntWidth = MeasureText(PressEnt.fetchstr(), PressEntFontSize);
+                DrawText(PressEnt.fetchstr(), (GetScreenWidth() - PressEntWidth) / 2, boxY + boxHeight + 90, PressEntFontSize, ORANGE);
+            }
+
+            // Fade out if flag is set
+            if (startfade && nameEntered) {
+                fade_opacity += GetFrameTime() / 2;
+                if (fade_opacity >= 1.0) {
+                    fade_opacity = 1.0;
+                    Current_State = Difficulty_Selection;
+                    startfade = false; // Reset for next use
+                }
             }
 
             DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Fade(BLACK, fade_opacity));
+            break;
+        }
+
+        case Difficulty_Selection: {
+            ClearBackground(BLACK);
+            fade_opacity -= GetFrameTime() / 2;
+            if (fade_opacity <= 0.0) {
+                fade_opacity = 0.0;
+            }
+            DrawText("Difficulty Selection", (GetScreenWidth() - MeasureText("Difficulty Selection", 70)) / 2, (GetScreenHeight() / 2) - 300, 70, YELLOW);
+			NoobButton.Draw();
+			ProButton.Draw();
+			HardcoreButton.Draw();
+            DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Fade(BLACK, fade_opacity));
+            
             break;
         }
 
@@ -474,5 +541,6 @@ int main() {
 //    CloseWindow();
 //    return 0;
 //}
+
 
 
