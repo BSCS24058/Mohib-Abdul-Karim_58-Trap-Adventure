@@ -14,8 +14,9 @@ class Level {
 public:
     Level();
     ~Level();
+	void setDungeon(Dungeon* dungeon);
     void LoadDungeon(ifstream& read);
-    void Draw();
+    void DrawLevel();
 };
 
 #endif // !LEVEL_H

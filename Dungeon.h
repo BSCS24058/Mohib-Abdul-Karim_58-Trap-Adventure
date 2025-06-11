@@ -2,8 +2,10 @@
 #define DUNGEON_H
 
 #include<iostream>
+#include<string>
 #include<fstream>
 #include"raylib.h"
+#include"Globals.h"
 using namespace std;
 
 class Dungeon {
@@ -13,6 +15,8 @@ class Dungeon {
 	int cell_size;
 	Color Wall_Colour;
 	Color Path_Colour;
+	int offsetX = 0;
+	int offsetY = 0;
 
 public:
 	Dungeon();

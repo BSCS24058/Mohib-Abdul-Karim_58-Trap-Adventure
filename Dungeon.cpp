@@ -1,17 +1,41 @@
 #include "Dungeon.h"
 
+
 Dungeon::Dungeon() : dungeon{ nullptr }, width{ 0 }, height{ 0 }, cell_size{0} {}
 
-void Dungeon::Set_Dungeon(ifstream& read){
-	read >> width;
-	read >> height;
-	read >> cell_size;
+void Dungeon::Set_Dungeon(ifstream& read) {
+    read >> width >> height;
 
-	dungeon = new char* [width];
-	for (int i = 0; i < width; i++) {
-		dungeon[i] = new char[height];
-	}
+    int wr, wg, wb, wa;
+    int pr, pg, pb, pa;
+    read >> wr >> wg >> wb >> wa;
+    read >> pr >> pg >> pb >> pa;
+
+    Wall_Colour = Color{ (unsigned char)wr, (unsigned char)wg, (unsigned char)wb, (unsigned char)wa };
+    Path_Colour = Color{ (unsigned char)pr, (unsigned char)pg, (unsigned char)pb, (unsigned char)pa };
+
+    // Fit dungeon to screen
+    cell_size = std::min(screenWidth / width, screenHeight / height);
+
+    read.ignore(); // ignore newline after color values
+
+    // Allocate row-major 2D array: dungeon[y][x]
+    dungeon = new char* [height];
+    for (int y = 0; y < height; y++) {
+        dungeon[y] = new char[width];
+    }
+
+    // Read map row-by-row
+    for (int y = 0; y < height; y++) {
+        string line;
+        getline(read, line);
+        for (int x = 0; x < width; x++) {
+            dungeon[y][x] = (x < (int)line.length()) ? line[x] : 'W';
+        }
+    }
 }
+
+
 
 int Dungeon::GetWidth() const {
     return width;
@@ -27,29 +51,36 @@ int Dungeon::GetCellSize() const {
 
 char Dungeon::GetCell(int x, int y) const {
     if (x >= 0 && x < width && y >= 0 && y < height) {
-        return dungeon[x][y]; // note: rows are height (y), columns are width (x)
+        return dungeon[y][x]; // row-major
     }
     return 'W';
 }
+
 
 char** Dungeon::GetMap() const {
     return dungeon;
 }
 
-void Draw_Dungeon(Dungeon dun) {
-    for (int y = 0; y < dun.GetHeight(); y++) {
-        for (int x = 0; x < dun.GetWidth(); x++) {
-            if (dun.GetMap()[y][x] == 'W') {
-                Color color = (x == 0 || y == 0 || x == dun.GetWidth() - 1 || y == dun.GetHeight() - 1)
-                    ? Color{ 230, 210, 80, 255 }
-                : DARKGRAY;
-                DrawRectangle(x * dun.GetCellSize(), y * dun.GetCellSize(), dun.GetCellSize(), dun.GetCellSize(), color);
+void Dungeon::Draw_Dungeon() {
+    int x_offset = (screenWidth - width * cell_size) / 2;
+    int y_offset = (screenHeight - height * cell_size) / 2;
+
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            int draw_x = x * cell_size + x_offset;
+            int draw_y = y * cell_size + y_offset;
+
+            if (dungeon[y][x] == 'W') {
+                Color color = ((x == 0 || y == 0 || x == width - 1 || y == height - 1)
+                    ? Wall_Colour
+                    : DARKGRAY);
+                DrawRectangle(draw_x, draw_y, cell_size, cell_size, color);
             }
             else {
-                DrawRectangle(x * dun.GetCellSize(), y * dun.GetCellSize(), dun.GetCellSize(), dun.GetCellSize(), Color{ 144, 238, 144, 255 });
+                DrawRectangle(draw_x, draw_y, cell_size, cell_size, Path_Colour);
             }
         }
     }
-
-    DrawRectangle(playerPixelX, playerPixelY, CELL_SIZE, CELL_SIZE, RED);
 }
+
+

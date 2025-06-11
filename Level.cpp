@@ -6,13 +6,18 @@ Level::~Level() {
     delete dungeon;
 }
 
+void Level::setDungeon(Dungeon* dungeon){
+    if (this->dungeon) delete this->dungeon;
+	this->dungeon = dungeon;
+}
+
 void Level::LoadDungeon(ifstream& read) {
     if (dungeon) delete dungeon;
     dungeon = new Dungeon();
     dungeon->Set_Dungeon(read);
 }
 
-void Level::Draw() {
+void Level::DrawLevel() {
     if (dungeon) {
         dungeon->Draw_Dungeon();
     }

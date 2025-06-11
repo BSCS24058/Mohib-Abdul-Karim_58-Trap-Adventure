@@ -9,7 +9,9 @@
 //#include <atomic>
 #include "Player.h"
 #include"Level.h"
-#include"Dungeon.h"
+//#include"Dungeon.h"
+#include"fstream"
+#include"Globals.h"
 
 #define TOTAL_TITLE_FRAMES 200
 #define TOTAL_MENU_FRAMES 317
@@ -117,9 +119,14 @@ enum GameStates {
 bool startfade = false;
 bool enterReleasedAfterName = false;
 
+
+// Screen dimensions(Globals)
+const int screenWidth = 1280;
+const int screenHeight = 720;
+
+
+
 int main() {
-    const int screenWidth = 1280;
-    const int screenHeight = 720;
 
     InitWindow(screenWidth, screenHeight, "Trap Adventure");
     SetTargetFPS(FRAME_RATE);
@@ -206,7 +213,19 @@ int main() {
     //Making Levels======================================================
 
     Level level1;
-	Dungeon dungeon1;
+
+    // Open the level file and load it into level1
+    {
+        ifstream levelFile("Level1.txt");
+        if (levelFile.is_open()) {
+            level1.LoadDungeon(levelFile);
+            levelFile.close();
+        } else {
+            cerr << "Failed to open Level1.txt" << endl;
+        }
+    }
+
+
 
     //====================================================================
 
@@ -237,16 +256,16 @@ int main() {
         ClearBackground(BLACK);
 
         switch (Current_State) {
-       /* case Loading: {
+            /* case Loading: {
 
-            if ((GetTime() * 2) - (int)(GetTime() * 2) < 1)
-                DrawText("Loading...",
-                    (screenWidth - MeasureText("Loading...", 40)) / 2,
-                    (screenHeight - 40) / 2, 40, WHITE);
+                 if ((GetTime() * 2) - (int)(GetTime() * 2) < 1)
+                     DrawText("Loading...",
+                         (screenWidth - MeasureText("Loading...", 40)) / 2,
+                         (screenHeight - 40) / 2, 40, WHITE);
 
-            if (framesLoaded) Current_State = Title;
-            break;
-        }*/
+                 if (framesLoaded) Current_State = Title;
+                 break;
+             }*/
 
         case Title: {
             DrawTexture(frames[currentFrame], 0, 0, WHITE);
@@ -348,7 +367,7 @@ int main() {
         case PreStart: {
 
             ClearBackground(BLACK);
-            
+
             if (!nameEntered) {
 
                 fade_opacity -= GetFrameTime() / 2;
@@ -441,19 +460,19 @@ int main() {
                 fade_opacity = 0.0;
             }
             DrawText("Difficulty Selection", (GetScreenWidth() - MeasureText("Difficulty Selection", 70)) / 2, (GetScreenHeight() / 2) - 300, 70, YELLOW);
-			NoobButton.Draw();
-			ProButton.Draw();
-			HardcoreButton.Draw();
+            NoobButton.Draw();
+            ProButton.Draw();
+            HardcoreButton.Draw();
             DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Fade(BLACK, fade_opacity));
 
             Vector2 mousePosition = GetMousePosition();
             bool mousePressed = IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
 
-            if (NoobButton.isPressed(mousePosition, mousePressed)){
+            if (NoobButton.isPressed(mousePosition, mousePressed)) {
                 Current_State = Loading_Level_1;
                 loadingLevel1Timer = 0.0f; // Reset timer when entering loading state
             }
-            
+
             break;
         }
 
@@ -470,13 +489,15 @@ int main() {
 
         case Level_1: {
             ClearBackground(BLACK);
-            
-		}
+            level1.DrawLevel();
+        }
 
-       EndDrawing();
+        }
+
+        EndDrawing();
     }
 
-    //if (loader.joinable()) loader.join();    
+        //if (loader.joinable()) loader.join();    
 
 
     for (auto& tex : frames) {
@@ -490,91 +511,9 @@ int main() {
     CloseAudioDevice();
     CloseWindow();
 
-
-
     return 0;
 }
 
-
-
-//#include "raylib.h"
-//#include <cstring>
-//#include <iostream>
-//#include<string>
-//
-//// Draws the maze using a 2D char array
-//void DrawMaze(char** maze, int rows, int cols, int screenWidth, int screenHeight) {
-//    float cellWidth = (float)screenWidth / cols;
-//    float cellHeight = (float)screenHeight / rows;
-//
-//    for (int y = 0; y < rows; y++) {
-//        for (int x = 0; x < cols; x++) {
-//            Rectangle cellRect = {
-//                x * cellWidth,
-//                y * cellHeight,
-//                cellWidth,
-//                cellHeight
-//            };
-//
-//            Color color;
-//            switch (maze[y][x]) {
-//            case '#': color = DARKGRAY; break;  // Wall
-//            case ' ': color = RAYWHITE; break;  // Path
-//            case 'S': color = GREEN; break;     // Start
-//            case 'E': color = RED; break;       // End
-//            default:  color = LIGHTGRAY; break; // Unknown
-//            }
-//
-//            DrawRectangleRec(cellRect, color);
-//        }
-//    }
-//}
-//
-//int main() {
-//    const int screenWidth = 800;
-//    const int screenHeight = 600;
-//    InitWindow(screenWidth, screenHeight, "Maze Viewer");
-//
-//    // Define the maze as an array of strings (all must be same length)
-//    const char* mazeData[] = {
-//        "########",
-//        "#S     #",
-//        "# ### ##",
-//        "#   #  #",
-//        "### #E##",
-//        "########"
-//    };
-//
-//    int mazeRows = sizeof(mazeData) / sizeof(mazeData[0]);
-//    int mazeCols = strlen(mazeData[0]);  // All rows must have same length
-//
-//    // Allocate dynamic char** array
-//    char** maze = new char* [mazeRows];
-//    for (int i = 0; i < mazeRows; i++) {
-//        maze[i] = new char[mazeCols + 1]; // +1 for null terminator
-//        strcpy(maze[i], mazeData[i]);
-//    }
-//
-//    SetTargetFPS(60);
-//
-//    while (!WindowShouldClose()) {
-//        BeginDrawing();
-//        ClearBackground(BLACK);
-//
-//        DrawMaze(maze, mazeRows, mazeCols, screenWidth, screenHeight);
-//
-//        EndDrawing();
-//    }
-//
-//    // Free dynamically allocated memory
-//    for (int i = 0; i < mazeRows; i++) {
-//        delete[] maze[i];
-//    }
-//    delete[] maze;
-//
-//    CloseWindow();
-//    return 0;
-//}
 
 
 
