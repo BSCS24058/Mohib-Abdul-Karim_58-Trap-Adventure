@@ -15,14 +15,14 @@ Dungeon* Level::getDungeon() const{
 	return dungeon;
 }
 
-void Level::LoadDungeon(ifstream& read) {
+void Level::LoadDungeon(ifstream& read, Player* Pl) {
     if (dungeon) delete dungeon;
     dungeon = new Dungeon();
-    dungeon->Set_Dungeon(read);
+    dungeon->Set_Dungeon(read, Pl);
 }
 
-void Level::DrawLevel(Player* Pl) {
+void Level::DrawLevel() {
     if (dungeon) {
-        dungeon->Draw_Dungeon(Pl);
+        dungeon->Draw_Dungeon();
     }
 }

@@ -16,8 +16,8 @@ public:
     ~Level();
 	void setDungeon(Dungeon* dungeon);
 	Dungeon* getDungeon() const;
-    void LoadDungeon(ifstream& read);
-    void DrawLevel(Player* Pl);
+    void LoadDungeon(ifstream& read, Player* Pl);
+    void DrawLevel();
 };
 
 #endif // !LEVEL_H

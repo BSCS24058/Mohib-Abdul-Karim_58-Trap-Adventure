@@ -148,7 +148,7 @@ int main() {
     {
         ifstream levelFile("Level1.txt");
         if (levelFile.is_open()) {
-            Game::getInstance()->getLevels()[0].LoadDungeon(levelFile);
+            Game::getInstance()->getLevels()[0].LoadDungeon(levelFile, &PL1);
             levelFile.close();
         }
         else {
@@ -505,31 +505,36 @@ int main() {
             ClearBackground(BLACK);
             float deltaTime = GetFrameTime();
             animation_update(&playerAnim, deltaTime);
-			Game::getInstance()->getLevels()[0].DrawLevel(Game::getInstance()->getPlayer());
+			Game::getInstance()->getLevels()[0].DrawLevel();
 
             float cellSize = Game::getInstance()->getLevels()[0].getDungeon()->GetCellSize();
 
+            float moveSpeed = 100.f;
+
             if (IsKeyDown(KEY_RIGHT)) { 
                 Game::getInstance()->getPlayer()->setCurrentAnimState(RIGHT);
+				Game::getInstance()->getPlayer()->UpdatePosition(moveSpeed* deltaTime, 0);
                 Game::getInstance()->getPlayer()->DrawPlayer(playerAnim, Game::getInstance()->getPlayer()->GetPosition(), cellSize);
             }
             else if (IsKeyDown(KEY_LEFT)) { 
                 Game::getInstance()->getPlayer()->setCurrentAnimState(LEFT);
+				Game::getInstance()->getPlayer()->UpdatePosition(-moveSpeed * deltaTime, 0);
                 Game::getInstance()->getPlayer()->DrawPlayer(playerAnim, Game::getInstance()->getPlayer()->GetPosition(), cellSize);
             }
             else if (IsKeyDown(KEY_UP)) {
                 Game::getInstance()->getPlayer()->setCurrentAnimState(UP);
+                Game::getInstance()->getPlayer()->UpdatePosition(0, -moveSpeed * deltaTime);
                 Game::getInstance()->getPlayer()->DrawPlayer(playerAnim, Game::getInstance()->getPlayer()->GetPosition(), cellSize);
             }
             else if (IsKeyDown(KEY_DOWN)) {
                 Game::getInstance()->getPlayer()->setCurrentAnimState(DOWN);
+                Game::getInstance()->getPlayer()->UpdatePosition(0, moveSpeed * deltaTime);
                 Game::getInstance()->getPlayer()->DrawPlayer(playerAnim, Game::getInstance()->getPlayer()->GetPosition(), cellSize);
             }
             else { 
                 Game::getInstance()->getPlayer()->setCurrentAnimState(IDLE);
                 Game::getInstance()->getPlayer()->DrawPlayer(playerAnim, Game::getInstance()->getPlayer()->GetPosition(), cellSize);
             }
-
 
             Game::getInstance()->getPlayer()->DrawPlayer(playerAnim, Game::getInstance()->getPlayer()->GetPosition(), cellSize);
 

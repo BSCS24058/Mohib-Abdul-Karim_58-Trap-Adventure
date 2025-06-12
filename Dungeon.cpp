@@ -5,7 +5,7 @@ Dungeon::Dungeon() : dungeon{ nullptr }, width{ 0 }, height{ 0 }, cell_size{ 0 }
     wallTexture = LoadTexture("C:/Github Repositories/Trap-Adventure-Game/wall.jpg");
 }
 
-void Dungeon::Set_Dungeon(ifstream& read) {
+void Dungeon::Set_Dungeon(ifstream& read, Player* Pl) {
     read >> width >> height;
 
     int wr, wg, wb, wa;
@@ -16,23 +16,32 @@ void Dungeon::Set_Dungeon(ifstream& read) {
     Wall_Colour = Color{ (unsigned char)wr, (unsigned char)wg, (unsigned char)wb, (unsigned char)wa };
     Path_Colour = Color{ (unsigned char)pr, (unsigned char)pg, (unsigned char)pb, (unsigned char)pa };
 
-    // Fit dungeon to screen
     cell_size = std::min(screenWidth / width, screenHeight / height);
 
-    read.ignore(); // ignore newline after color values
+    read.ignore(); 
 
-    // Allocate row-major 2D array: dungeon[y][x]
     dungeon = new char* [height];
     for (int y = 0; y < height; y++) {
         dungeon[y] = new char[width];
     }
 
-    // Read map row-by-row
     for (int y = 0; y < height; y++) {
         string line;
         getline(read, line);
         for (int x = 0; x < width; x++) {
             dungeon[y][x] = (x < (int)line.length()) ? line[x] : 'W';
+        }
+    }
+
+    x_offset = (screenWidth - width * cell_size) / 2;
+    y_offset = (screenHeight - height * cell_size) / 2;
+
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            if (dungeon[y][x] == 'X') { 
+                
+                Pl->SetPosition(x * cell_size + x_offset, y * cell_size + y_offset);
+            }
         }
     }
 }
@@ -63,12 +72,8 @@ char** Dungeon::GetMap() const {
     return dungeon;
 }
 
-void Dungeon::Draw_Dungeon(Player* Pl) {
+void Dungeon::Draw_Dungeon() {
 
-
-
-    int x_offset = (screenWidth - width * cell_size) / 2;
-    int y_offset = (screenHeight - height * cell_size) / 2;
 
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
@@ -80,10 +85,6 @@ void Dungeon::Draw_Dungeon(Player* Pl) {
                     0.0f,
                     static_cast<float>(cell_size) / wallTexture.width,
                     WHITE);
-            }
-            else if (dungeon[y][x] == 'X') {
-                Pl->SetPosition(x * cell_size + x_offset, y*cell_size + y_offset);
-                DrawRectangle(draw_x, draw_y, cell_size, cell_size, Path_Colour);
             }
             else {
                 DrawRectangle(draw_x, draw_y, cell_size, cell_size, Path_Colour);
@@ -103,8 +104,5 @@ Dungeon::~Dungeon() {
     width = 0;
     height = 0;
     cell_size = 0;
-    offsetX = 0;
-    offsetY = 0;
-
     UnloadTexture(wallTexture);
 }

@@ -16,21 +16,21 @@ class Dungeon {
 	float cell_size;
 	Color Wall_Colour;
 	Color Path_Colour;
-	int offsetX = 0;
-	int offsetY = 0;
+	int x_offset;
+	int y_offset;
 
 	Texture2D wallTexture;
 
 public:
 	Dungeon();
-	void Set_Dungeon(ifstream& read);
+	void Set_Dungeon(ifstream& read, Player* Pl);
 	int GetWidth() const;
 	int GetHeight() const;
 	float GetCellSize() const;
 	char GetCell(int x, int y) const;
 	char** GetMap() const;
 
-	void Draw_Dungeon(Player* Pl);
+	void Draw_Dungeon();
 
 	~Dungeon();
 };
