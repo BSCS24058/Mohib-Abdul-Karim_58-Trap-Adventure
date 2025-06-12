@@ -12,11 +12,13 @@ class Dungeon {
 	char** dungeon;
 	int width;
 	int height;
-	int cell_size;
+	float cell_size;
 	Color Wall_Colour;
 	Color Path_Colour;
 	int offsetX = 0;
 	int offsetY = 0;
+
+	Texture2D wallTexture;
 
 public:
 	Dungeon();
@@ -28,6 +30,8 @@ public:
 	char** GetMap() const;
 
 	void Draw_Dungeon();
+
+	~Dungeon();
 };
 
 

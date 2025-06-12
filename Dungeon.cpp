@@ -1,7 +1,9 @@
 #include "Dungeon.h"
 
 
-Dungeon::Dungeon() : dungeon{ nullptr }, width{ 0 }, height{ 0 }, cell_size{0} {}
+Dungeon::Dungeon() : dungeon{ nullptr }, width{ 0 }, height{ 0 }, cell_size{ 0 } {
+    wallTexture = LoadTexture("C:/Github Repositories/Trap-Adventure-Game/wall.jpg");
+}
 
 void Dungeon::Set_Dungeon(ifstream& read) {
     read >> width >> height;
@@ -51,7 +53,7 @@ int Dungeon::GetCellSize() const {
 
 char Dungeon::GetCell(int x, int y) const {
     if (x >= 0 && x < width && y >= 0 && y < height) {
-        return dungeon[y][x]; // row-major
+        return dungeon[y][x]; 
     }
     return 'W';
 }
@@ -62,6 +64,9 @@ char** Dungeon::GetMap() const {
 }
 
 void Dungeon::Draw_Dungeon() {
+
+
+
     int x_offset = (screenWidth - width * cell_size) / 2;
     int y_offset = (screenHeight - height * cell_size) / 2;
 
@@ -71,16 +76,35 @@ void Dungeon::Draw_Dungeon() {
             int draw_y = y * cell_size + y_offset;
 
             if (dungeon[y][x] == 'W') {
-                Color color = ((x == 0 || y == 0 || x == width - 1 || y == height - 1)
-                    ? Wall_Colour
-                    : DARKGRAY);
-                DrawRectangle(draw_x, draw_y, cell_size, cell_size, color);
+                // Draw the wall texture scaled to cell_size x cell_size
+                DrawTextureEx(
+                    wallTexture,
+                    Vector2{ static_cast<float>(draw_x), static_cast<float>(draw_y) },
+                    0.0f,
+                    static_cast<float>(cell_size) / wallTexture.width,
+                    WHITE
+                );
             }
             else {
                 DrawRectangle(draw_x, draw_y, cell_size, cell_size, Path_Colour);
             }
         }
     }
+
 }
 
 
+Dungeon::~Dungeon() {
+    for (int i = 0; i < height; i++) {
+        delete[] dungeon[i];
+    }
+    delete[] dungeon;
+    dungeon = nullptr;
+    width = 0;
+    height = 0;
+    cell_size = 0;
+    offsetX = 0;
+    offsetY = 0;
+
+    UnloadTexture(wallTexture);
+}

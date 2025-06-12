@@ -12,6 +12,7 @@
 //#include"Dungeon.h"
 #include"fstream"
 #include"Globals.h"
+#include"Animation.h"
 
 #define TOTAL_TITLE_FRAMES 200
 #define TOTAL_MENU_FRAMES 317
@@ -225,10 +226,19 @@ int main() {
         }
     }
 
-
-
     //====================================================================
 
+    // Player Animation===========================================================
+	Texture2D playerTexture = LoadTexture("C:/Github Repositories/Trap-Adventure-Game/Player_Walking_Right.png");
+
+
+    Animation playerAnim;
+    playerAnim.frameCount = 4;         // Number of frames in your sprite sheet
+    playerAnim.currentFrame = 0;       // Start at the first frame
+    playerAnim.frameDuration = 0.15f;  // Each frame lasts 0.15 seconds
+    playerAnim.elapsedTime = 0.0f;     // Start with no elapsed time
+
+    //============================================================================
 
     bool exit = false;
 
@@ -489,7 +499,20 @@ int main() {
 
         case Level_1: {
             ClearBackground(BLACK);
+            float deltaTime = GetFrameTime();
+            animation_update(&playerAnim, deltaTime);
             level1.DrawLevel();
+
+            // Calculate single frame size
+            int frameWidth = playerTexture.width / playerAnim.frameCount;
+            int frameHeight = playerTexture.height;
+
+            // Get the correct source rectangle for the current frame
+            Rectangle srcRect = animation_get_current_frame_rect(&playerAnim, playerAnim.frameCount, frameWidth, frameHeight);
+
+            Vector2 position = { 100, 100 }; // You can update this for movement
+            DrawTextureRec(playerTexture, srcRect, position, WHITE);
+            break;
         }
 
         }
@@ -506,6 +529,8 @@ int main() {
     for (auto& tex : menuFrames) {
         UnloadTexture(tex);
     }
+
+	UnloadTexture(playerTexture);
 
     UnloadMusicStream(bgMusic);
     CloseAudioDevice();
