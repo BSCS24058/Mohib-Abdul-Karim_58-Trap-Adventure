@@ -1,21 +1,20 @@
 #include "Player.h"
+#include "Animation.h" // Make sure this is included
 
-#include "Player.h"
-#include <utility> 
 
-Player::Player() : Name(""), health(100), lives(3), position(0) {}
+Player::Player() : Name(""), health(100), lives(3) {
+    PlayerTextures.resize(5);
+    PlayerTextures[0] = LoadTexture("C:/Github Repositories/Trap-Adventure-Game/PlayerTextures/Player_Idle.png");
+    PlayerTextures[1] = LoadTexture("C:/Github Repositories/Trap-Adventure-Game/PlayerTextures/Player_Walking_Right.png");
+    PlayerTextures[2] = LoadTexture("C:/Github Repositories/Trap-Adventure-Game/PlayerTextures/Player_Walking_Left.png");
+    PlayerTextures[3] = LoadTexture("C:/Github Repositories/Trap-Adventure-Game/PlayerTextures/Player_Walking_Up.png");
+    PlayerTextures[4] = LoadTexture("C:/Github Repositories/Trap-Adventure-Game/PlayerTextures/Player_Walking_Down.png");
 
-Player::Player(const MyStr& name, int h, int l, int pos)
-    : Name(name), health(h), lives(l), position(pos) {
+    livesTexture = LoadTexture("C:/Github Repositories/Trap-Adventure-Game/PlayerTextures/heart.png");
 }
 
-Player::Player(const Player& other)
-    : Name(other.Name), health(other.health), lives(other.lives), position(other.position) {
-}
 
 
-
-Player::~Player() = default;
 
 Player& Player::operator=(const Player& other) {
     if (this != &other) {
@@ -28,15 +27,34 @@ Player& Player::operator=(const Player& other) {
 }
 
 
-MyStr Player::getName() const { return Name; }
-int Player::getHealth() const { return health; }
-int Player::getLives() const { return lives; }
-int Player::getPosition() const { return position; }
 
+
+MyStr Player::getName() const { return Name; }
 void Player::setName(const MyStr& name) { Name = name; }
+
+Texture2D Player::getTexture(int idx) const {
+    return PlayerTextures[idx];
+}
+
+
+
+int Player::getHealth() const { return health; }
 void Player::setHealth(int h) { health = h; }
+
+
+int Player::getLives() const { return lives; }
 void Player::setLives(int l) { lives = l; }
-void Player::setPosition(int pos) { position = pos; }
+
+Texture2D Player::getLivesTexture() const {
+    return livesTexture;
+}
+
+void Player::setCurrentAnimState(PlayerAnimStates state){
+	currentAnimState = state;
+}
+
+
+
 
 void Player::takeDamage(int damage) {
     health -= damage;
@@ -46,14 +64,64 @@ void Player::takeDamage(int damage) {
     }
 }
 
-void Player::move(int delta) {
-    position += delta;
-}
-
 void Player::printStatus() const {
-    std::cout << "Name: " << Name << "\n"
-        << "Health: " << health << "\n"
-        << "Lives: " << lives << "\n"
-        << "Position: " << position << std::endl;
+    int heartSize = 40;
+    int heartSpacing = 10;
+    int topMargin = 20;
+    int leftMargin = 20;
+
+    for (int i = 0; i < lives; ++i) {
+        DrawTextureEx(
+            livesTexture,
+            Vector2{ (float)(leftMargin + i * (heartSize + heartSpacing)), (float)topMargin },
+            0.0f,
+            (float)heartSize / livesTexture.width,
+            WHITE
+        );
+    }
+
+    int healthBarWidth = 150;
+    int healthBarHeight = 20;
+    int healthBarX = leftMargin + lives * (heartSize + heartSpacing) + 20;
+    int healthBarY = topMargin;
+    float healthPercent = (float)health / 100.0f;
+
+    DrawRectangle(healthBarX, healthBarY, healthBarWidth, healthBarHeight, GRAY);
+    DrawRectangle(healthBarX, healthBarY, (int)(healthBarWidth * healthPercent), healthBarHeight, RED);
+
+    DrawText(
+        TextFormat("%d/100", health),
+        healthBarX + healthBarWidth + 10,
+        healthBarY,
+        20,
+        WHITE
+    );
 }
 
+void Player::DrawPlayer(const Animation& anim, const Vector2& position, float cellSize) const {
+    float scale = 0.8f; 
+    float playerSize = cellSize * scale;
+    float offset = (cellSize - playerSize) / 2.0f;
+    Vector2 drawPos = { position.x + offset, position.y + offset };
+
+    if (currentAnimState == IDLE) {
+        DrawTextureEx(getTexture(0), drawPos, 0.0f, playerSize / getTexture(0).width, WHITE);
+        return;
+    } else {
+        Texture2D currentTexture = getTexture(static_cast<int>(currentAnimState));
+        int frameWidth = currentTexture.width / anim.frameCount;
+        int frameHeight = currentTexture.height;
+        Rectangle srcRect = animation_get_current_frame_rect(&anim, anim.frameCount, frameWidth, frameHeight);
+        Rectangle destRect = { drawPos.x, drawPos.y, playerSize, playerSize };
+        DrawTexturePro(currentTexture, srcRect, destRect, Vector2{ 0, 0 }, 0.0f, WHITE);
+    }
+}
+
+void Player::Update(){}
+
+
+Player::~Player() {
+    for(auto& texture : PlayerTextures) {
+        UnloadTexture(texture); 
+    }
+}

@@ -5,6 +5,7 @@
 #include<string>
 #include<fstream>
 #include"raylib.h"
+#include"Player.h"
 #include"Globals.h"
 using namespace std;
 
@@ -29,7 +30,7 @@ public:
 	char GetCell(int x, int y) const;
 	char** GetMap() const;
 
-	void Draw_Dungeon();
+	void Draw_Dungeon(Player* Pl);
 
 	~Dungeon();
 };

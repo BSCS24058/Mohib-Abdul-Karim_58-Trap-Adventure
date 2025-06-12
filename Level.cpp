@@ -21,8 +21,8 @@ void Level::LoadDungeon(ifstream& read) {
     dungeon->Set_Dungeon(read);
 }
 
-void Level::DrawLevel() {
+void Level::DrawLevel(Player* Pl) {
     if (dungeon) {
-        dungeon->Draw_Dungeon();
+        dungeon->Draw_Dungeon(Pl);
     }
 }

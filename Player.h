@@ -3,39 +3,61 @@
 
 #include <iostream>
 #include "MyStr.h"
+#include "raylib.h"
+#include "Entity.h"
+#include "Animation.h"
+#include <vector>
 
-class Player {
+enum PlayerAnimStates {
+    IDLE = 0,
+    RIGHT,
+    LEFT,
+    UP,
+    DOWN
+};
+
+class Player : public Entity {
 private:
     MyStr Name;
+    vector<Texture2D> PlayerTextures;
+    int no_of_textures;
+    //0--idle
+    //1--running right
+    //2--running left
+    //3--upwards
+    //4--downwards
     int health;
     int lives;
-    int position;
+    Texture2D livesTexture;
+    PlayerAnimStates currentAnimState;
 
 public:
-   
     Player(); 
-    Player(const MyStr& name, int h, int l, int pos);  
-    Player(const Player& other); 
+    //Player(const Player& other); 
 
-    
     Player& operator=(const Player& other);
 
-    
     MyStr getName() const;
+    void setName(const MyStr& name);
+
+    Texture2D getTexture(int idx) const;
+    Texture2D getLivesTexture() const;
+
+	void setCurrentAnimState(PlayerAnimStates state);
+
+
     int getHealth() const;
     int getLives() const;
-    int getPosition() const;
 
-    
-    void setName(const MyStr& name);
     void setHealth(int h);
     void setLives(int l);
-    void setPosition(int pos);
 
     void takeDamage(int damage);
-    void move(int delta);
     void printStatus() const;
 
+    void Update() override;
+
+    void DrawPlayer(const Animation& anim, const Vector2& position, float cellSize) const;
 
     ~Player(); 
 };

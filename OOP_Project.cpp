@@ -118,6 +118,7 @@ enum GameStates {
 	Level_1,
 };
 
+
 bool startfade = false;
 bool enterReleasedAfterName = false;
 
@@ -139,6 +140,10 @@ int main() {
 
     Game::getInstance()->initializeLevels(3); // Three levels for now
     Game::getInstance()->setCurrentLevel(0);  // Starting from level 0(or 1 in generlaized labels)
+
+    Player PL1;
+
+	Game::getInstance()->setPlayer(&PL1);
 
     {
         ifstream levelFile("Level1.txt");
@@ -187,7 +192,7 @@ int main() {
 
     // ===== Title Screen Buttons =============================================
     float titleButtonScale = 0.3f;
-    Texture2D tempTex = LoadTexture("C:/Users/User/OneDrive/Documents/Project1/End_Button.png");
+    Texture2D tempTex = LoadTexture("C:/Github Repositories/Trap-Adventure-Game/Buttons/End_Button.png");
     int titleButtonWidth = tempTex.width * titleButtonScale;
     int titleButtonHeight = tempTex.height * titleButtonScale;
     UnloadTexture(tempTex);
@@ -195,8 +200,8 @@ int main() {
     Vector2 startMenuButtonPos = { (float)(screenWidth - titleButtonWidth) / 2, (float)(screenHeight / 2 - 325) };
     Vector2 exitMenuButtonPos = { (float)(screenWidth - titleButtonWidth) / 2, (float)(screenHeight / 2 - 100) };
 
-    Button startMenuButton{ "C:/Users/User/OneDrive/Documents/Project1/Start_Button (3).png", startMenuButtonPos, titleButtonScale };
-    Button exitMenuButton{ "C:/Users/User/OneDrive/Documents/Project1/End_Button.png", exitMenuButtonPos, titleButtonScale };
+    Button startMenuButton{"C:/Github Repositories/Trap-Adventure-Game/Buttons/Start_Button (3).png", startMenuButtonPos, titleButtonScale };
+    Button exitMenuButton{ "C:/Github Repositories/Trap-Adventure-Game/Buttons/End_Button.png", exitMenuButtonPos, titleButtonScale };
     //======================================================================================================
 
 
@@ -205,7 +210,7 @@ int main() {
     float difficultyButtonScale = 0.4f;
     int buttonSpacing = 60;
 
-    tempTex = LoadTexture("C:/Github Repositories/Trap-Adventure-Game/Noob_Button.jpg");
+    tempTex = LoadTexture("C:/Github Repositories/Trap-Adventure-Game/Buttons/Noob_Button.jpg");
     int difficultyButtonWidth = tempTex.width * difficultyButtonScale;
     int difficultyButtonHeight = tempTex.height * difficultyButtonScale;
     UnloadTexture(tempTex);
@@ -216,14 +221,13 @@ int main() {
     Vector2 proButtonPos = { centerX, (float)(screenHeight / 2) };
     Vector2 hardcoreButtonPos = { centerX, (float)(screenHeight / 2 + difficultyButtonHeight + buttonSpacing) };
 
-    Button NoobButton{ "C:/Github Repositories/Trap-Adventure-Game/Noob_Button.jpg", noobButtonPos, difficultyButtonScale };
-    Button ProButton{ "C:/Github Repositories/Trap-Adventure-Game/Pro_Button.jpg", proButtonPos, difficultyButtonScale };
-    Button HardcoreButton{ "C:/Github Repositories/Trap-Adventure-Game/Hardcore_Button.jpg", hardcoreButtonPos, difficultyButtonScale };
+    Button NoobButton{ "C:/Github Repositories/Trap-Adventure-Game/Buttons/Noob_Button.jpg", noobButtonPos, difficultyButtonScale };
+    Button ProButton{ "C:/Github Repositories/Trap-Adventure-Game/Buttons/Pro_Button.jpg", proButtonPos, difficultyButtonScale };
+    Button HardcoreButton{ "C:/Github Repositories/Trap-Adventure-Game/Buttons/Hardcore_Button.jpg", hardcoreButtonPos, difficultyButtonScale };
 	//======================================================================================================
 
 
     //Player declaration and info prompt----------------------------------------
-    Player PL1;
 
     MyStr name = "";
     int letterCount = 0;
@@ -233,8 +237,6 @@ int main() {
 
 
     // Player Animation===========================================================
-	Texture2D playerTexture = LoadTexture("C:/Github Repositories/Trap-Adventure-Game/Player_Walking_Right.png");
-
 
     Animation playerAnim;
     playerAnim.frameCount = 4;        
@@ -405,11 +407,10 @@ int main() {
 
                 if (IsKeyPressed(KEY_ENTER)) {
                     nameEntered = true;
-                    enterReleasedAfterName = false; // Reset for debounce
+                    enterReleasedAfterName = false; 
                 }
             }
             else {
-                // Debounce: Wait for Enter to be released before accepting the next press
                 if (!IsKeyDown(KEY_ENTER)) {
                     enterReleasedAfterName = true;
                 }
@@ -453,13 +454,12 @@ int main() {
                 DrawText(PressEnt.fetchstr(), (GetScreenWidth() - PressEntWidth) / 2, boxY + boxHeight + 90, PressEntFontSize, ORANGE);
             }
 
-            // Fade out if flag is set
             if (startfade && nameEntered) {
                 fade_opacity += GetFrameTime() / 2;
                 if (fade_opacity >= 1.0) {
                     fade_opacity = 1.0;
                     Current_State = Difficulty_Selection;
-                    startfade = false; // Reset for next use
+                    startfade = false; 
                 }
             }
 
@@ -484,7 +484,7 @@ int main() {
 
             if (NoobButton.isPressed(mousePosition, mousePressed)) {
                 Current_State = Loading_Level_1;
-                loadingLevel1Timer = 0.0f; // Reset timer when entering loading state
+                loadingLevel1Timer = 0.0f; 
             }
 
             break;
@@ -505,18 +505,36 @@ int main() {
             ClearBackground(BLACK);
             float deltaTime = GetFrameTime();
             animation_update(&playerAnim, deltaTime);
-			Game::getInstance()->getLevels()[0].DrawLevel();
-
-            int frameWidth = playerTexture.width / playerAnim.frameCount;
-            int frameHeight = playerTexture.height;
-            Rectangle srcRect = animation_get_current_frame_rect(&playerAnim, playerAnim.frameCount, frameWidth, frameHeight);
+			Game::getInstance()->getLevels()[0].DrawLevel(Game::getInstance()->getPlayer());
 
             float cellSize = Game::getInstance()->getLevels()[0].getDungeon()->GetCellSize();
 
-            Vector2 position = { 100, 100 }; 
-            Rectangle destRect = { position.x, position.y, static_cast<float>(cellSize), static_cast<float>(cellSize) };
+            if (IsKeyDown(KEY_RIGHT)) { 
+                Game::getInstance()->getPlayer()->setCurrentAnimState(RIGHT);
+                Game::getInstance()->getPlayer()->DrawPlayer(playerAnim, Game::getInstance()->getPlayer()->GetPosition(), cellSize);
+            }
+            else if (IsKeyDown(KEY_LEFT)) { 
+                Game::getInstance()->getPlayer()->setCurrentAnimState(LEFT);
+                Game::getInstance()->getPlayer()->DrawPlayer(playerAnim, Game::getInstance()->getPlayer()->GetPosition(), cellSize);
+            }
+            else if (IsKeyDown(KEY_UP)) {
+                Game::getInstance()->getPlayer()->setCurrentAnimState(UP);
+                Game::getInstance()->getPlayer()->DrawPlayer(playerAnim, Game::getInstance()->getPlayer()->GetPosition(), cellSize);
+            }
+            else if (IsKeyDown(KEY_DOWN)) {
+                Game::getInstance()->getPlayer()->setCurrentAnimState(DOWN);
+                Game::getInstance()->getPlayer()->DrawPlayer(playerAnim, Game::getInstance()->getPlayer()->GetPosition(), cellSize);
+            }
+            else { 
+                Game::getInstance()->getPlayer()->setCurrentAnimState(IDLE);
+                Game::getInstance()->getPlayer()->DrawPlayer(playerAnim, Game::getInstance()->getPlayer()->GetPosition(), cellSize);
+            }
 
-            DrawTexturePro(playerTexture, srcRect, destRect, Vector2{0, 0}, 0.0f, WHITE);
+
+            Game::getInstance()->getPlayer()->DrawPlayer(playerAnim, Game::getInstance()->getPlayer()->GetPosition(), cellSize);
+
+            Game::getInstance()->getPlayer()->printStatus();
+
             break;
         }
 
@@ -535,7 +553,6 @@ int main() {
         UnloadTexture(tex);
     }
 
-	UnloadTexture(playerTexture);
 
     UnloadMusicStream(bgMusic);
     CloseAudioDevice();
@@ -543,6 +560,12 @@ int main() {
 
     return 0;
 }
+
+
+
+
+
+
 
 
 

@@ -9,7 +9,7 @@ using namespace std;
 
 class Level {
     Dungeon* dungeon;
-    //vector<Entity> Entities;
+    
 
 public:
     Level();
@@ -17,7 +17,7 @@ public:
 	void setDungeon(Dungeon* dungeon);
 	Dungeon* getDungeon() const;
     void LoadDungeon(ifstream& read);
-    void DrawLevel();
+    void DrawLevel(Player* Pl);
 };
 
 #endif // !LEVEL_H

@@ -63,7 +63,7 @@ char** Dungeon::GetMap() const {
     return dungeon;
 }
 
-void Dungeon::Draw_Dungeon() {
+void Dungeon::Draw_Dungeon(Player* Pl) {
 
 
 
@@ -80,6 +80,10 @@ void Dungeon::Draw_Dungeon() {
                     0.0f,
                     static_cast<float>(cell_size) / wallTexture.width,
                     WHITE);
+            }
+            else if (dungeon[y][x] == 'X') {
+                Pl->SetPosition(x * cell_size + x_offset, y*cell_size + y_offset);
+                DrawRectangle(draw_x, draw_y, cell_size, cell_size, Path_Colour);
             }
             else {
                 DrawRectangle(draw_x, draw_y, cell_size, cell_size, Path_Colour);
