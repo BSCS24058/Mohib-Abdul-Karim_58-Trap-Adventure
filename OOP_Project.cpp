@@ -503,15 +503,16 @@ int main() {
             animation_update(&playerAnim, deltaTime);
             level1.DrawLevel();
 
-            // Calculate single frame size
             int frameWidth = playerTexture.width / playerAnim.frameCount;
             int frameHeight = playerTexture.height;
-
-            // Get the correct source rectangle for the current frame
             Rectangle srcRect = animation_get_current_frame_rect(&playerAnim, playerAnim.frameCount, frameWidth, frameHeight);
 
-            Vector2 position = { 100, 100 }; // You can update this for movement
-            DrawTextureRec(playerTexture, srcRect, position, WHITE);
+            float cellSize = level1.getDungeon()->GetCellSize(); // Adjust this accessor as needed
+
+            Vector2 position = { 100, 100 }; // Update as needed for player position
+            Rectangle destRect = { position.x, position.y, static_cast<float>(cellSize), static_cast<float>(cellSize) };
+
+            DrawTexturePro(playerTexture, srcRect, destRect, Vector2{0, 0}, 0.0f, WHITE);
             break;
         }
 
@@ -538,6 +539,9 @@ int main() {
 
     return 0;
 }
+
+
+
 
 
 

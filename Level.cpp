@@ -11,6 +11,10 @@ void Level::setDungeon(Dungeon* dungeon){
 	this->dungeon = dungeon;
 }
 
+Dungeon* Level::getDungeon() const{
+	return dungeon;
+}
+
 void Level::LoadDungeon(ifstream& read) {
     if (dungeon) delete dungeon;
     dungeon = new Dungeon();

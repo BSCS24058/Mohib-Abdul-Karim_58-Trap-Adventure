@@ -47,7 +47,7 @@ int Dungeon::GetHeight() const {
     return height;
 }
 
-int Dungeon::GetCellSize() const {
+float Dungeon::GetCellSize() const {
     return cell_size;
 }
 
@@ -76,14 +76,10 @@ void Dungeon::Draw_Dungeon() {
             int draw_y = y * cell_size + y_offset;
 
             if (dungeon[y][x] == 'W') {
-                // Draw the wall texture scaled to cell_size x cell_size
-                DrawTextureEx(
-                    wallTexture,
-                    Vector2{ static_cast<float>(draw_x), static_cast<float>(draw_y) },
+                DrawTextureEx(wallTexture,Vector2{ static_cast<float>(draw_x), static_cast<float>(draw_y) },
                     0.0f,
                     static_cast<float>(cell_size) / wallTexture.width,
-                    WHITE
-                );
+                    WHITE);
             }
             else {
                 DrawRectangle(draw_x, draw_y, cell_size, cell_size, Path_Colour);

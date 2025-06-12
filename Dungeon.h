@@ -25,7 +25,7 @@ public:
 	void Set_Dungeon(ifstream& read);
 	int GetWidth() const;
 	int GetHeight() const;
-	int GetCellSize() const;
+	float GetCellSize() const;
 	char GetCell(int x, int y) const;
 	char** GetMap() const;
 
