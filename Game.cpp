@@ -11,7 +11,7 @@ Game* Game::getInstance() {
     return instance;
 }
 
-const vector<Level>& Game::getLevels() const {
+vector<Level>& Game::getLevels(){
     return levels;
 }
 
@@ -27,6 +27,12 @@ Player* Game::getPlayer() const {
     return player;
 }
 
+
+void Game::initializeLevels(int count) {
+    no_of_levels = count;
+    levels.resize(count);
+}
+
 void Game::setNoOfLevels(int no_of_levels) {
     no_of_levels = no_of_levels;
 }
@@ -37,4 +43,9 @@ void Game::setCurrentLevel(int current_level) {
 
 void Game::setPlayer(Player* player_) {
     player = player_;
+}
+
+
+Game::~Game() {
+    delete player;
 }

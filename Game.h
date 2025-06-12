@@ -25,17 +25,19 @@ class Game {
 public:
     static Game* getInstance();
 
-    // Getters
-    const vector<Level>& getLevels() const;
+    vector<Level>& getLevels();
+
     int getNoOfLevels() const;
     int getCurrentLevel() const;
     Player* getPlayer() const;
 
-    // Setters
-    void setLevels(const vector<Level>& levels);
+    void initializeLevels(int count);
+
     void setNoOfLevels(int no_of_levels);
     void setCurrentLevel(int current_level);
     void setPlayer(Player* player);
+
+    ~Game();
 };
 
 #endif // !GAME_H

@@ -13,6 +13,7 @@
 #include"fstream"
 #include"Globals.h"
 #include"Animation.h"
+#include"Game.h"
 
 #define TOTAL_TITLE_FRAMES 200
 #define TOTAL_MENU_FRAMES 317
@@ -132,6 +133,26 @@ int main() {
     InitWindow(screenWidth, screenHeight, "Trap Adventure");
     SetTargetFPS(FRAME_RATE);
 
+
+
+    //===============INITIALIZE GAME(Singleton class)============================================
+
+    Game::getInstance()->initializeLevels(3); // Three levels for now
+    Game::getInstance()->setCurrentLevel(0);  // Starting from level 0(or 1 in generlaized labels)
+
+    {
+        ifstream levelFile("Level1.txt");
+        if (levelFile.is_open()) {
+            Game::getInstance()->getLevels()[0].LoadDungeon(levelFile);
+            levelFile.close();
+        }
+        else {
+            cerr << "Failed to open Level1.txt" << endl;
+        }
+    }
+
+    //===========================================================================================
+
     //thread loader(LoadAllFrames);
 
     LoadTitleFrames();
@@ -211,32 +232,15 @@ int main() {
     //--------------------------------------------------
 
 
-    //Making Levels======================================================
-
-    Level level1;
-
-    // Open the level file and load it into level1
-    {
-        ifstream levelFile("Level1.txt");
-        if (levelFile.is_open()) {
-            level1.LoadDungeon(levelFile);
-            levelFile.close();
-        } else {
-            cerr << "Failed to open Level1.txt" << endl;
-        }
-    }
-
-    //====================================================================
-
     // Player Animation===========================================================
 	Texture2D playerTexture = LoadTexture("C:/Github Repositories/Trap-Adventure-Game/Player_Walking_Right.png");
 
 
     Animation playerAnim;
-    playerAnim.frameCount = 4;         // Number of frames in your sprite sheet
-    playerAnim.currentFrame = 0;       // Start at the first frame
-    playerAnim.frameDuration = 0.15f;  // Each frame lasts 0.15 seconds
-    playerAnim.elapsedTime = 0.0f;     // Start with no elapsed time
+    playerAnim.frameCount = 4;        
+    playerAnim.currentFrame = 0;      
+    playerAnim.frameDuration = 0.15f;  
+    playerAnim.elapsedTime = 0.0f;     
 
     //============================================================================
 
@@ -501,15 +505,15 @@ int main() {
             ClearBackground(BLACK);
             float deltaTime = GetFrameTime();
             animation_update(&playerAnim, deltaTime);
-            level1.DrawLevel();
+			Game::getInstance()->getLevels()[0].DrawLevel();
 
             int frameWidth = playerTexture.width / playerAnim.frameCount;
             int frameHeight = playerTexture.height;
             Rectangle srcRect = animation_get_current_frame_rect(&playerAnim, playerAnim.frameCount, frameWidth, frameHeight);
 
-            float cellSize = level1.getDungeon()->GetCellSize(); // Adjust this accessor as needed
+            float cellSize = Game::getInstance()->getLevels()[0].getDungeon()->GetCellSize();
 
-            Vector2 position = { 100, 100 }; // Update as needed for player position
+            Vector2 position = { 100, 100 }; 
             Rectangle destRect = { position.x, position.y, static_cast<float>(cellSize), static_cast<float>(cellSize) };
 
             DrawTexturePro(playerTexture, srcRect, destRect, Vector2{0, 0}, 0.0f, WHITE);
