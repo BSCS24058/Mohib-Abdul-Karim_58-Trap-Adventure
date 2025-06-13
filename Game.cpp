@@ -1,4 +1,5 @@
 #include "Game.h"
+#include "Logger.h"
 
 Game* Game::instance = nullptr;
 
@@ -10,6 +11,7 @@ Game* Game::getInstance() {
     }
     return instance;
 }
+
 
 vector<Level>& Game::getLevels(){
     return levels;
