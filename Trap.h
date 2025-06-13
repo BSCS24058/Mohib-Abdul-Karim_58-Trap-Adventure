@@ -9,6 +9,7 @@ class Trap : public Obstacles {
     float timeGapBetweenTrigger;
     float timer;               
     bool animPlaying;          
+    bool animForward; // true = forward, false = reverse
     Animation anim;
 public:
     Trap();
