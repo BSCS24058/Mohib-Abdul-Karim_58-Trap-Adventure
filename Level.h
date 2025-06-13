@@ -13,20 +13,20 @@ using namespace std;
 
 class Level {
     Dungeon* dungeon;
-	//vector<Obstacles*> obstacles;
+	vector<Obstacles*> obstacles;
 	int No_of_Obstacles;
     
 
 public:
     Level();
-    ~Level();
 	void setDungeon(Dungeon* dungeon);
 	Dungeon* getDungeon() const;
     void LoadDungeon(ifstream& read, Player* Pl);
     void DrawLevel();
-	void AddObstacle();
+	vector<Obstacles*> getObstacles();
+	int getNo_of_Obstacles();
 
-    //vector<Obstacles*>& getObstacles();
+    ~Level();
 };
 
 #endif // !LEVEL_H

@@ -239,14 +239,14 @@ int main() {
 
 
     // Player Animation===========================================================
-
     Animation playerAnim;
     playerAnim.frameCount = 4;        
     playerAnim.currentFrame = 0;      
     playerAnim.frameDuration = 0.15f;  
     playerAnim.elapsedTime = 0.0f;     
-
     //============================================================================
+
+    
 
     bool exit = false;
 
@@ -541,7 +541,14 @@ int main() {
 
                 Game::getInstance()->getPlayer()->printStatus();
 
-               
+                for (Obstacles* obs : Game::getInstance()->getLevels()[0].getObstacles()) {
+                    Trap* trap = dynamic_cast<Trap*>(obs);
+                    if (trap) {
+                        trap->Update(GetFrameTime());
+                        trap->DrawTrap(cellSize);
+                    }
+                }
+
             }
 
 

@@ -42,18 +42,10 @@ void Dungeon::Set_Dungeon(ifstream& read, Player* Pl, Level* lvl) {
             if (dungeon[y][x] == 'X') {
                 Pl->SetPosition(x * cell_size + x_offset, y * cell_size + y_offset);
             }
-            //if (dungeon[y][x] == 'T') {
+            if (dungeon[y][x] == 'T') {
 
-            //    //Vector2 pos = { x * cell_size + x_offset, y * cell_size + y_offset };
-            //    //float trapSize = cell_size;
-            //    //int frameW = /* width of one frame in Spike.png */;
-            //    //int frameH = /* height of one frame in Spike.png */;
-            //    //float damage = 10.0f; // or whatever value you want
-            //    //float resetTime = 1.0f; // or whatever value you want
-
-            //    //Trap* trap = new Trap(damage, resetTime, pos, trapSize, frameW, frameH);
-            //    //lvl->getObstacles().push_back(trap);
-            //}
+                Trap_Positions.push_back({ x * cell_size + x_offset, y * cell_size + y_offset });
+            }
         }
     }
 }
@@ -111,6 +103,10 @@ void Dungeon::Draw_Dungeon() {
         }
     }
 
+}
+
+vector<Vector2> Dungeon::GetTrapPositions() const {
+    return Trap_Positions;
 }
 
 

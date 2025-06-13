@@ -6,6 +6,7 @@
 #include<fstream>
 #include"raylib.h"
 #include"Globals.h"
+#include<vector>
 using namespace std;
 
 class Player;
@@ -18,8 +19,11 @@ class Dungeon {
 	float cell_size;
 	Color Wall_Colour;
 	Color Path_Colour;
-	int x_offset;
-	int y_offset;
+	float x_offset;
+	float y_offset;
+
+	vector<Vector2> Trap_Positions;
+
 
 	Texture2D wallTexture;
 
@@ -34,6 +38,7 @@ public:
 
 	int GetXOffset() const;
 	int GetYOffset() const;
+	vector<Vector2> GetTrapPositions() const;
 
 	void Draw_Dungeon();
 
