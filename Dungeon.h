@@ -5,9 +5,10 @@
 #include<string>
 #include<fstream>
 #include"raylib.h"
-#include"Player.h"
 #include"Globals.h"
 using namespace std;
+
+class Player;
 
 class Dungeon {
 	char** dungeon;
@@ -29,6 +30,9 @@ public:
 	float GetCellSize() const;
 	char GetCell(int x, int y) const;
 	char** GetMap() const;
+
+	int GetXOffset() const;
+	int GetYOffset() const;
 
 	void Draw_Dungeon();
 

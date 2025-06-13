@@ -1,6 +1,6 @@
 #include "Player.h"
-#include "Animation.h" // Make sure this is included
-
+#include "Animation.h" 
+#include "Dungeon.h"
 
 Player::Player() : Name(""), health(100), lives(3) {
     PlayerTextures.resize(5);
@@ -117,7 +117,38 @@ void Player::DrawPlayer(const Animation& anim, const Vector2& position, float ce
     }
 }
 
-void Player::Update(){}
+
+void Player::UpdatePosition(float dx, float dy, const Dungeon* dungeon) {
+    float scale = 0.8f;
+	float cellSize = dungeon->GetCellSize();
+    float playerSize = cellSize * scale;
+    float offset = (cellSize - playerSize) / 2.0f;
+
+    float newX = position.x + dx;
+    float newY = position.y + dy;
+
+    float left = newX + offset;
+    float top = newY + offset;
+    float right = left + playerSize;
+    float bottom = top + playerSize;
+
+	float x_offset = dungeon->GetXOffset();
+	float y_offset = dungeon->GetYOffset();
+
+    int leftCol = (int)((left - x_offset) / cellSize);
+    int rightCol = (int)((right - x_offset - 0.1f) / cellSize);
+    int topRow = (int)((top - y_offset) / cellSize);
+    int bottomRow = (int)((bottom - y_offset - 0.1f) / cellSize);
+
+    if (dungeon->GetCell(leftCol, topRow) != 'W' && dungeon->GetCell(rightCol, topRow) != 'W' 
+        && dungeon->GetCell(leftCol, bottomRow) != 'W' && dungeon->GetCell(rightCol, bottomRow) != 'W'){
+        position.x = newX;
+        position.y = newY;
+    }
+}
+
+
+
 
 
 Player::~Player() {

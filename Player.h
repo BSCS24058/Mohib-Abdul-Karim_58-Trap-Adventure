@@ -8,6 +8,8 @@
 #include "Animation.h"
 #include <vector>
 
+class Dungeon;
+
 enum PlayerAnimStates {
     IDLE = 0,
     RIGHT,
@@ -33,8 +35,6 @@ private:
 
 public:
     Player(); 
-    //Player(const Player& other); 
-
     Player& operator=(const Player& other);
 
     MyStr getName() const;
@@ -55,7 +55,7 @@ public:
     void takeDamage(int damage);
     void printStatus() const;
 
-    void Update() override;
+    void UpdatePosition(float dx, float dy, const Dungeon* dungeon);
 
     void DrawPlayer(const Animation& anim, const Vector2& position, float cellSize) const;
 

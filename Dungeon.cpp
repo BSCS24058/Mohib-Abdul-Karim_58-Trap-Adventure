@@ -1,4 +1,5 @@
 #include "Dungeon.h"
+#include "Player.h"
 
 
 Dungeon::Dungeon() : dungeon{ nullptr }, width{ 0 }, height{ 0 }, cell_size{ 0 } {
@@ -61,15 +62,22 @@ float Dungeon::GetCellSize() const {
 }
 
 char Dungeon::GetCell(int x, int y) const {
-    if (x >= 0 && x < width && y >= 0 && y < height) {
-        return dungeon[y][x]; 
-    }
-    return 'W';
+    if (y >= 0 && y < height && x >= 0 && x < width)
+        return dungeon[y][x];  
+    return 'W';  
 }
 
 
 char** Dungeon::GetMap() const {
     return dungeon;
+}
+
+int Dungeon::GetXOffset() const {
+    return x_offset;
+}
+
+int Dungeon::GetYOffset() const {
+    return y_offset;
 }
 
 void Dungeon::Draw_Dungeon() {

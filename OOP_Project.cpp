@@ -507,38 +507,39 @@ int main() {
             animation_update(&playerAnim, deltaTime);
 			Game::getInstance()->getLevels()[0].DrawLevel();
 
-            float cellSize = Game::getInstance()->getLevels()[0].getDungeon()->GetCellSize();
+            if(Game::getInstance()->getPlayer()->IsEntityActive()){
 
-            float moveSpeed = 100.f;
+                float cellSize = Game::getInstance()->getLevels()[0].getDungeon()->GetCellSize();
+                float dx = 0.0f, dy = 0.0f;
+                float moveSpeed = 100.f;
 
-            if (IsKeyDown(KEY_RIGHT)) { 
-                Game::getInstance()->getPlayer()->setCurrentAnimState(RIGHT);
-				Game::getInstance()->getPlayer()->UpdatePosition(moveSpeed* deltaTime, 0);
+                if (IsKeyDown(KEY_RIGHT)) {
+                    dx += moveSpeed * deltaTime;
+                    Game::getInstance()->getPlayer()->setCurrentAnimState(RIGHT);
+                }
+                if (IsKeyDown(KEY_LEFT)) {
+                    dx -= moveSpeed * deltaTime;
+                    Game::getInstance()->getPlayer()->setCurrentAnimState(LEFT);
+                }
+                if (IsKeyDown(KEY_UP)) {
+                    dy -= moveSpeed * deltaTime;
+                    Game::getInstance()->getPlayer()->setCurrentAnimState(UP);
+                }
+                if (IsKeyDown(KEY_DOWN)) {
+                    dy += moveSpeed * deltaTime;
+                    Game::getInstance()->getPlayer()->setCurrentAnimState(DOWN);
+                }
+
+                if (dx == 0 && dy == 0) {
+                    Game::getInstance()->getPlayer()->setCurrentAnimState(IDLE);
+                }
+
+                Game::getInstance()->getPlayer()->UpdatePosition(dx, dy, Game::getInstance()->getLevels()[0].getDungeon());
                 Game::getInstance()->getPlayer()->DrawPlayer(playerAnim, Game::getInstance()->getPlayer()->GetPosition(), cellSize);
-            }
-            else if (IsKeyDown(KEY_LEFT)) { 
-                Game::getInstance()->getPlayer()->setCurrentAnimState(LEFT);
-				Game::getInstance()->getPlayer()->UpdatePosition(-moveSpeed * deltaTime, 0);
-                Game::getInstance()->getPlayer()->DrawPlayer(playerAnim, Game::getInstance()->getPlayer()->GetPosition(), cellSize);
-            }
-            else if (IsKeyDown(KEY_UP)) {
-                Game::getInstance()->getPlayer()->setCurrentAnimState(UP);
-                Game::getInstance()->getPlayer()->UpdatePosition(0, -moveSpeed * deltaTime);
-                Game::getInstance()->getPlayer()->DrawPlayer(playerAnim, Game::getInstance()->getPlayer()->GetPosition(), cellSize);
-            }
-            else if (IsKeyDown(KEY_DOWN)) {
-                Game::getInstance()->getPlayer()->setCurrentAnimState(DOWN);
-                Game::getInstance()->getPlayer()->UpdatePosition(0, moveSpeed * deltaTime);
-                Game::getInstance()->getPlayer()->DrawPlayer(playerAnim, Game::getInstance()->getPlayer()->GetPosition(), cellSize);
-            }
-            else { 
-                Game::getInstance()->getPlayer()->setCurrentAnimState(IDLE);
-                Game::getInstance()->getPlayer()->DrawPlayer(playerAnim, Game::getInstance()->getPlayer()->GetPosition(), cellSize);
+
+                Game::getInstance()->getPlayer()->printStatus();
             }
 
-            Game::getInstance()->getPlayer()->DrawPlayer(playerAnim, Game::getInstance()->getPlayer()->GetPosition(), cellSize);
-
-            Game::getInstance()->getPlayer()->printStatus();
 
             break;
         }
