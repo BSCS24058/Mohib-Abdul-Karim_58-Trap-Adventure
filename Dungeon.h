@@ -9,6 +9,7 @@
 using namespace std;
 
 class Player;
+class Level;
 
 class Dungeon {
 	char** dungeon;
@@ -24,7 +25,7 @@ class Dungeon {
 
 public:
 	Dungeon();
-	void Set_Dungeon(ifstream& read, Player* Pl);
+	void Set_Dungeon(ifstream& read, Player* Pl, Level* lvl);
 	int GetWidth() const;
 	int GetHeight() const;
 	float GetCellSize() const;

@@ -9,11 +9,13 @@
 //#include <atomic>
 #include "Player.h"
 #include"Level.h"
-//#include"Dungeon.h"
+#include"Dungeon.h"
 #include"fstream"
 #include"Globals.h"
 #include"Animation.h"
 #include"Game.h"
+#include"Obstacles.h"
+#include"Trap.h"
 
 #define TOTAL_TITLE_FRAMES 200
 #define TOTAL_MENU_FRAMES 317
@@ -538,6 +540,8 @@ int main() {
                 Game::getInstance()->getPlayer()->DrawPlayer(playerAnim, Game::getInstance()->getPlayer()->GetPosition(), cellSize);
 
                 Game::getInstance()->getPlayer()->printStatus();
+
+               
             }
 
 

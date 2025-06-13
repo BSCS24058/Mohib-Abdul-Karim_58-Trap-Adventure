@@ -108,7 +108,7 @@ void Player::DrawPlayer(const Animation& anim, const Vector2& position, float ce
         DrawTextureEx(getTexture(0), drawPos, 0.0f, playerSize / getTexture(0).width, WHITE);
         return;
     } else {
-        Texture2D currentTexture = getTexture(static_cast<int>(currentAnimState));
+        Texture2D currentTexture = getTexture((int)(currentAnimState));
         int frameWidth = currentTexture.width / anim.frameCount;
         int frameHeight = currentTexture.height;
         Rectangle srcRect = animation_get_current_frame_rect(&anim, anim.frameCount, frameWidth, frameHeight);
