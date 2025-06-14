@@ -1,8 +1,10 @@
 #include "Player.h"
 #include "Animation.h" 
 #include "Dungeon.h"
+#include"Obstacles.h"
+#include"Trap.h"
 
-Player::Player() : Name(""), health(100), lives(3) {
+Player::Player() : Name(""), health(100), lives(3), TakingDamage(false), damageTimer(0.0f), damageTintTimer(0.0f) {
     PlayerTextures.resize(5);
     PlayerTextures[0] = LoadTexture("C:/Github Repositories/Trap-Adventure-Game/PlayerTextures/Player_Idle.png");
     PlayerTextures[1] = LoadTexture("C:/Github Repositories/Trap-Adventure-Game/PlayerTextures/Player_Walking_Right.png");
@@ -99,26 +101,29 @@ void Player::printStatus() const {
 }
 
 void Player::DrawPlayer(const Animation& anim, const Vector2& position, float cellSize) const {
-    float scale = 0.8f; 
+    float scale = 0.8f;
     float playerSize = cellSize * scale;
     float offset = (cellSize - playerSize) / 2.0f;
     Vector2 drawPos = { position.x + offset, position.y + offset };
 
+    Color tint = (damageTintTimer > 0.0f) ? RED : WHITE;
+
     if (currentAnimState == IDLE) {
-        DrawTextureEx(getTexture(0), drawPos, 0.0f, playerSize / getTexture(0).width, WHITE);
+        DrawTextureEx(getTexture(0), drawPos, 0.0f, playerSize / getTexture(0).width, tint);
         return;
-    } else {
+    }
+    else {
         Texture2D currentTexture = getTexture((int)(currentAnimState));
         int frameWidth = currentTexture.width / anim.frameCount;
         int frameHeight = currentTexture.height;
         Rectangle srcRect = animation_get_current_frame_rect(&anim, anim.frameCount, frameWidth, frameHeight);
         Rectangle destRect = { drawPos.x, drawPos.y, playerSize, playerSize };
-        DrawTexturePro(currentTexture, srcRect, destRect, Vector2{ 0, 0 }, 0.0f, WHITE);
+        DrawTexturePro(currentTexture, srcRect, destRect, Vector2{ 0, 0 }, 0.0f, tint);
     }
 }
 
 
-void Player::UpdatePosition(float dx, float dy, const Dungeon* dungeon) {
+void Player::UpdatePosition(float dx, float dy, const Dungeon* dungeon, const vector<Obstacles*>& obstacles) {
     float scale = 0.8f;
 	float cellSize = dungeon->GetCellSize();
     float playerSize = cellSize * scale;
@@ -144,6 +149,36 @@ void Player::UpdatePosition(float dx, float dy, const Dungeon* dungeon) {
         && dungeon->GetCell(leftCol, bottomRow) != 'W' && dungeon->GetCell(rightCol, bottomRow) != 'W'){
         position.x = newX;
         position.y = newY;
+    }
+    TakingDamage = false;
+	damageTimer += GetFrameTime();
+    for (const auto& obs : obstacles) {
+        const Trap* trap = dynamic_cast<const Trap*>(obs);
+        if (trap && trap->IsEntityActive()) {
+
+            float trapX = trap->GetPosition().x;
+            float trapY = trap->GetPosition().y;
+            float trapSize = cellSize;
+
+            float playerLeft = position.x + offset;
+            float playerTop = position.y + offset;
+            float playerRight = playerLeft + playerSize;
+            float playerBottom = playerTop + playerSize;
+
+            float trapLeft = trapX;
+            float trapTop = trapY;
+            float trapRight = trapX + trapSize;
+            float trapBottom = trapY + trapSize;
+
+            if (playerRight > trapLeft && playerLeft < trapRight &&
+                playerBottom > trapTop && playerTop < trapBottom &&
+                damageTimer >= 0.5f) {
+                damageTimer = 0.0f;
+                TakingDamage = true;
+                damageTintTimer = 0.2f; 
+                break;
+            }
+        }
     }
 }
 

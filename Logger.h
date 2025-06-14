@@ -3,14 +3,17 @@
 
 #include <string>
 #include <fstream>
+#include"MyStr.h"
+
+using namespace std;
 
 class Logger {
 public:
     static Logger& getInstance();
 
-    void initialize(const std::string& filename);
+    void initialize(const MyStr& filename);
     void cleanup();
-    void writeError(const std::string& error_message);
+    void writeError(const MyStr& error_message);
 
 private:
     std::ofstream logFile;

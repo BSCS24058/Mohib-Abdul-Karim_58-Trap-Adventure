@@ -16,9 +16,8 @@
 #include"Game.h"
 #include"Obstacles.h"
 #include"Trap.h"
+#include"Logger.h"
 
-#define TOTAL_TITLE_FRAMES 200
-#define TOTAL_MENU_FRAMES 317
 #define FRAME_RATE 60
 
 using namespace std;
@@ -26,6 +25,9 @@ using namespace std;
 vector<Texture2D> frames;
 vector<Texture2D> menuFrames;
 //atomic<bool> framesLoaded(false);
+
+int TOTAL_TITLE_FRAMES = 200;
+int TOTAL_MENU_FRAMES = 317;
 
 
 MyStr GetTitlePath(int index) {
@@ -84,18 +86,43 @@ MyStr GetMenuPath(int index) {
 }
 
 void LoadTitleFrames() {
+    Logger& logger = Logger::getInstance();
     for (int i = 0; i < TOTAL_TITLE_FRAMES; i++) {
         MyStr path = GetTitlePath(i);
         Image img = LoadImage(path.fetchstr());
-        frames.push_back(LoadTextureFromImage(img));
+       /* if (img.width == 0 || img.height == 0) {
+            logger.writeError(MyStr("Failed to load image: ") + path);
+            TOTAL_TITLE_FRAMES--;
+            continue;
+        }*/
+        Texture2D tex = LoadTextureFromImage(img);
+        /*if (tex.id == 0) {
+            logger.writeError(MyStr("Failed to create texture from image: ") + path);
+            UnloadImage(img);
+            continue;
+        }*/
+        frames.push_back(tex);
         UnloadImage(img);
     }
 }
+
 void LoadMenuFrames() {
+    Logger& logger = Logger::getInstance();
     for (int i = 0; i < TOTAL_MENU_FRAMES; i++) {
         MyStr path = GetMenuPath(i);
         Image img = LoadImage(path.fetchstr());
-        menuFrames.push_back(LoadTextureFromImage(img));
+        /*if (img.width == 0 || img.height == 0) {
+            logger.writeError(MyStr("Failed to load image: ") + path);
+			TOTAL_MENU_FRAMES--;
+            continue;
+        }*/
+        Texture2D tex = LoadTextureFromImage(img);
+       /* if (tex.id == 0) {
+            logger.writeError(MyStr("Failed to create texture from image: ") + path);
+            UnloadImage(img);
+            continue;
+        }*/
+        menuFrames.push_back(tex);
         UnloadImage(img);
     }
 }
@@ -136,7 +163,7 @@ int main() {
     InitWindow(screenWidth, screenHeight, "Trap Adventure");
     SetTargetFPS(FRAME_RATE);
 
-
+	Logger::getInstance().initialize("Log.txt");
 
     //===============INITIALIZE GAME(Singleton class)============================================
 
@@ -229,13 +256,12 @@ int main() {
 	//======================================================================================================
 
 
-    //Player declaration and info prompt----------------------------------------
-
-    MyStr name = "";
+    //Player declaration and info prompt----------------------------------------/
+    MyStr name = "";                                                           
     int letterCount = 0;
     int maxLetters = 20;
     bool nameEntered = false;
-    //--------------------------------------------------
+    //--------------------------------------------------/
 
 
     // Player Animation===========================================================
@@ -536,7 +562,7 @@ int main() {
                     Game::getInstance()->getPlayer()->setCurrentAnimState(IDLE);
                 }
 
-                Game::getInstance()->getPlayer()->UpdatePosition(dx, dy, Game::getInstance()->getLevels()[0].getDungeon());
+                Game::getInstance()->getPlayer()->UpdatePosition(dx, dy, Game::getInstance()->getLevels()[0].getDungeon(), Game::getInstance()->getLevels()[0].getObstacles());
                 Game::getInstance()->getPlayer()->DrawPlayer(playerAnim, Game::getInstance()->getPlayer()->GetPosition(), cellSize);
 
                 Game::getInstance()->getPlayer()->printStatus();

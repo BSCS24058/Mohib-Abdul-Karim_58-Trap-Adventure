@@ -7,6 +7,7 @@
 #include "Entity.h"
 #include "Animation.h"
 #include <vector>
+#include"Obstacles.h"
 
 class Dungeon;
 
@@ -32,6 +33,9 @@ private:
     int lives;
     Texture2D livesTexture;
     PlayerAnimStates currentAnimState;
+	mutable bool TakingDamage;
+	float damageTimer;
+    float damageTintTimer;
 
 public:
     Player(); 
@@ -55,7 +59,7 @@ public:
     void takeDamage(int damage);
     void printStatus() const;
 
-    void UpdatePosition(float dx, float dy, const Dungeon* dungeon);
+    void UpdatePosition(float dx, float dy, const Dungeon* dungeon, const vector<Obstacles*>& obstacles);
 
     void DrawPlayer(const Animation& anim, const Vector2& position, float cellSize) const;
 

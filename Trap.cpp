@@ -58,19 +58,9 @@ void Trap::DrawTrap(float cellSize) const {
     int frameWidth = Obstacle_texture.width / anim.frameCount;
     int frameHeight = Obstacle_texture.height;
 
-    Rectangle sourceRect = {
-        (float)(anim.currentFrame * frameWidth),
-        0.0f,
-        (float)(frameWidth),
-        (float)(frameHeight)
-    };
+    Rectangle sourceRect = {(float)(anim.currentFrame * frameWidth), 0.0f, (float)(frameWidth), (float)(frameHeight)};
 
-    Rectangle destRect = {
-        position.x,
-        position.y,
-        cellSize,
-        cellSize
-    };
+    Rectangle destRect = {position.x, position.y, cellSize, cellSize};
 
     DrawTexturePro(Obstacle_texture, sourceRect, destRect, { 0, 0 }, 0.0f, WHITE);
 }
