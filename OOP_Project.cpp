@@ -24,10 +24,12 @@ using namespace std;
 
 vector<Texture2D> frames;
 vector<Texture2D> menuFrames;
+vector<Texture2D> YouDiedFrames;
 //atomic<bool> framesLoaded(false);
 
 int TOTAL_TITLE_FRAMES = 200;
 int TOTAL_MENU_FRAMES = 317;
+int TOTAL_YOUDIED_FRAMES = 193;
 
 
 MyStr GetTitlePath(int index) {
@@ -84,6 +86,33 @@ MyStr GetMenuPath(int index) {
 
     return ss.str();
 }
+MyStr GetYouDiedPath(int index) {
+    MyStrStream ss;
+    ss << "C:/Users/User/OneDrive/Documents/Project1/YouDiedFrames/Frame";
+
+    int digits = 5;
+    int temp = index;
+    int digitCount = 0;
+
+    if (index == 0) {
+        digitCount = 1;
+    }
+    else {
+        while (temp != 0) {
+            temp /= 10;
+            digitCount++;
+        }
+    }
+
+    for (int i = 0; i < digits - digitCount; i++) {
+        ss << '0';
+    }
+
+    ss << index;
+    ss << ".png";
+
+    return ss.str();
+}
 
 void LoadTitleFrames() {
     Logger& logger = Logger::getInstance();
@@ -105,7 +134,6 @@ void LoadTitleFrames() {
         UnloadImage(img);
     }
 }
-
 void LoadMenuFrames() {
     Logger& logger = Logger::getInstance();
     for (int i = 0; i < TOTAL_MENU_FRAMES; i++) {
@@ -123,6 +151,26 @@ void LoadMenuFrames() {
             continue;
         }*/
         menuFrames.push_back(tex);
+        UnloadImage(img);
+    }
+}
+void LoadYouDiedFrames() {
+    Logger& logger = Logger::getInstance();
+    for (int i = 0; i < TOTAL_MENU_FRAMES; i++) {
+        MyStr path = GetYouDiedPath(i);
+        Image img = LoadImage(path.fetchstr());
+        /*if (img.width == 0 || img.height == 0) {
+            logger.writeError(MyStr("Failed to load image: ") + path);
+            TOTAL_MENU_FRAMES--;
+            continue;
+        }*/
+        Texture2D tex = LoadTextureFromImage(img);
+        /* if (tex.id == 0) {
+             logger.writeError(MyStr("Failed to create texture from image: ") + path);
+             UnloadImage(img);
+             continue;
+         }*/
+        YouDiedFrames.push_back(tex);
         UnloadImage(img);
     }
 }
@@ -145,6 +193,7 @@ enum GameStates {
     Difficulty_Selection,
     Loading_Level_1,
 	Level_1,
+    You_Died
 };
 
 
@@ -219,7 +268,7 @@ int main() {
     //For level 1 Loading
     float loadingLevel1Timer = 0.0f;
 
-    // ===== Title Screen Buttons =============================================
+    // ===== Title Screen Buttons ==============================================================================/
     float titleButtonScale = 0.3f;
     Texture2D tempTex = LoadTexture("C:/Github Repositories/Trap-Adventure-Game/Buttons/End_Button.png");
     int titleButtonWidth = tempTex.width * titleButtonScale;
@@ -231,7 +280,7 @@ int main() {
 
     Button startMenuButton{"C:/Github Repositories/Trap-Adventure-Game/Buttons/Start_Button (3).png", startMenuButtonPos, titleButtonScale };
     Button exitMenuButton{ "C:/Github Repositories/Trap-Adventure-Game/Buttons/End_Button.png", exitMenuButtonPos, titleButtonScale };
-    //======================================================================================================
+    //======================================================================================================/
 
 
 
@@ -272,10 +321,45 @@ int main() {
     playerAnim.elapsedTime = 0.0f;     
     //============================================================================
 
-    
+
+	// Reset Button======================================================================================/
+	Button resetButton{ "C:/Github Repositories/Trap-Adventure-Game/Buttons/Reset.png", { 10, 10 },
+        0.5f / 10};
+    const float reset_Button_Margin = 20.0f;
+
+    float reset_Button_Width = resetButton.getWidth();  
+    float reset_Button_Height = resetButton.getHeight();
+
+    Vector2 resetButtonPos = {
+        (float)GetScreenWidth() - reset_Button_Width - reset_Button_Margin,
+        reset_Button_Margin
+    };
+    resetButton.setPosition(resetButtonPos);
+	//===============================================================================================/
+
+
+	// Music Button==================================================================================
+	Button musicButton{ "C:/Github Repositories/Trap-Adventure-Game/Buttons/MusicButton.png", { 10, 10 }, 0.5f / 10 };
+	Button musicMuteButton{ "C:/Github Repositories/Trap-Adventure-Game/Buttons/MusicMuteButton.png", { 10, 10 }, 0.5f / 10 };
+
+    float music_Button_Margin = 20.0f;
+    float music_Button_Width = musicButton.getWidth();
+    float music_Button_Height = musicButton.getHeight();
+
+    Vector2 musicButtonPos = {
+        resetButtonPos.x - music_Button_Width - music_Button_Margin,
+        resetButtonPos.y
+    };
+    musicButton.setPosition(musicButtonPos);
+    musicMuteButton.setPosition(musicButtonPos);
+
+    bool isMusicMuted = false;
+    float previousMusicVolume = 1.0f;
+	//===============================================================================================
+
+
 
     bool exit = false;
-
     while (!WindowShouldClose() && exit == false) {
 
         UpdateMusicStream(bgMusic);
@@ -534,6 +618,38 @@ int main() {
             float deltaTime = GetFrameTime();
             animation_update(&playerAnim, deltaTime);
 			Game::getInstance()->getLevels()[0].DrawLevel();
+			resetButton.Draw();
+
+            Vector2 mousePosition = GetMousePosition();
+            bool mousePressed = IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
+
+            if (resetButton.isPressed(mousePosition, mousePressed)) {
+                Current_State = Loading_Level_1;
+                loadingLevel1Timer = 0.0f;
+				Game::getInstance()->getPlayer()->SetPosition(Game::getInstance()->getLevels()[0].getDungeon()->GetPlayerOriginalPosition().x, 
+                    Game::getInstance()->getLevels()[0].getDungeon()->GetPlayerOriginalPosition().y); 
+            } 
+
+
+            if (musicButton.isPressed(mousePosition, mousePressed) || musicMuteButton.isPressed(mousePosition, mousePressed)) {
+				isMusicMuted = !isMusicMuted;
+                if (isMusicMuted) {
+					SetMusicVolume(bgMusic, 0.0f);
+                }
+                else {
+					SetMusicVolume(bgMusic, previousMusicVolume);
+				}
+            }
+
+            if (isMusicMuted) {
+                musicMuteButton.Draw();
+            }
+            else {
+                musicButton.Draw();
+            }
+
+            
+
 
             if(Game::getInstance()->getPlayer()->IsEntityActive()){
 
@@ -580,6 +696,13 @@ int main() {
 
             break;
         }
+        case You_Died: {
+            ClearBackground(BLACK);
+            DrawText("You Died!", (GetScreenWidth() - MeasureText("You Died!", 70)) / 2, (GetScreenHeight() / 2) - 100, 70, RED);
+            DrawText("Press R to Restart", (GetScreenWidth() - MeasureText("Press R to Restart", 40)) / 2, (GetScreenHeight() / 2), 40, WHITE);
+            if (IsKeyPressed(KEY_R)) {
+                Current_State = Loading_Level_1;
+				loadingLevel1Timer = 0.0f;
 
         }
 

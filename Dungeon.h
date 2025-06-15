@@ -23,6 +23,7 @@ class Dungeon {
 	float y_offset;
 
 	vector<Vector2> Trap_Positions;
+	Vector2 playerOriginalPosition;
 
 
 	Texture2D wallTexture;
@@ -39,6 +40,7 @@ public:
 	int GetXOffset() const;
 	int GetYOffset() const;
 	vector<Vector2> GetTrapPositions() const;
+	Vector2 GetPlayerOriginalPosition() const;
 
 	void Draw_Dungeon();
 

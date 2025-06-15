@@ -16,6 +16,7 @@ public:
     Trap(float x, float y); 
     void Update(float deltaTime);
     void DrawTrap(float cellSize) const;
+    bool IsDangerous();
 };
 
 

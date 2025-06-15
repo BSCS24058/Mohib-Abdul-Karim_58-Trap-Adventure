@@ -40,6 +40,7 @@ void Dungeon::Set_Dungeon(ifstream& read, Player* Pl, Level* lvl) {
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
             if (dungeon[y][x] == 'X') {
+				playerOriginalPosition = { x * cell_size + x_offset, y * cell_size + y_offset };
                 Pl->SetPosition(x * cell_size + x_offset, y * cell_size + y_offset);
             }
             if (dungeon[y][x] == 'T') {
@@ -107,6 +108,10 @@ void Dungeon::Draw_Dungeon() {
 
 vector<Vector2> Dungeon::GetTrapPositions() const {
     return Trap_Positions;
+}
+
+Vector2 Dungeon::GetPlayerOriginalPosition() const{
+    return playerOriginalPosition;
 }
 
 

@@ -4,3 +4,5 @@ ERROR: Failed to load image: C:/Users/User/OneDrive/Documents/Project1/HomepageF
 ERROR: Failed to load image: C:/Users/User/OneDrive/Documents/Project1/MenuFrames/frame00000.png
 ERROR: Failed to load image: C:/Users/User/OneDrive/Documents/Project1/HomepageFrames/frames00000.png
 ERROR: Failed to load image: C:/Users/User/OneDrive/Documents/Project1/MenuFrames/frame00000.png
+ERROR: Failed to load button image: C:/Github Repositories/Trap-Adventure-Game/Buttons/.png
+ERROR: Failed to create texture from button image: C:/Github Repositories/Trap-Adventure-Game/Buttons/.png

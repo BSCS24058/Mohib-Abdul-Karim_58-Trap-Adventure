@@ -9,7 +9,7 @@ Trap::Trap() : resetTime{ 1.0f }, timeGapBetweenTrigger{ 1.0f }, timer{0.0f}, an
     anim.elapsedTime = 0.0f;
 }
 
-Trap::Trap(float x, float y) : resetTime{ 1.0f }, timeGapBetweenTrigger{ 1.0f }, timer{0.0f}, animPlaying{true}, animForward{true} {
+Trap::Trap(float x, float y) : resetTime{ 1.0f }, timeGapBetweenTrigger{ 2.0f }, timer{0.0f}, animPlaying{true}, animForward{true} {
     position = { x, y };
     IsActive = true;
     Obstacle_texture = LoadTexture("C:/Github Repositories/Trap-Adventure-Game/Spike.png");
@@ -63,6 +63,11 @@ void Trap::DrawTrap(float cellSize) const {
     Rectangle destRect = {position.x, position.y, cellSize, cellSize};
 
     DrawTexturePro(Obstacle_texture, sourceRect, destRect, { 0, 0 }, 0.0f, WHITE);
+}
+
+bool Trap::IsDangerous()
+{
+    return animPlaying;
 }
 
 
