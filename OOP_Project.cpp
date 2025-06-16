@@ -88,7 +88,7 @@ MyStr GetMenuPath(int index) {
 }
 MyStr GetYouDiedPath(int index) {
     MyStrStream ss;
-    ss << "C:/Users/User/OneDrive/Documents/Project1/YouDiedFrames/Frame";
+    ss << "C:/Github Repositories/Trap-Adventure-Game/YouDiedFrames/Frame";
 
     int digits = 5;
     int temp = index;
@@ -156,20 +156,10 @@ void LoadMenuFrames() {
 }
 void LoadYouDiedFrames() {
     Logger& logger = Logger::getInstance();
-    for (int i = 0; i < TOTAL_MENU_FRAMES; i++) {
+    for (int i = 0; i < TOTAL_YOUDIED_FRAMES; i++) {
         MyStr path = GetYouDiedPath(i);
         Image img = LoadImage(path.fetchstr());
-        /*if (img.width == 0 || img.height == 0) {
-            logger.writeError(MyStr("Failed to load image: ") + path);
-            TOTAL_MENU_FRAMES--;
-            continue;
-        }*/
         Texture2D tex = LoadTextureFromImage(img);
-        /* if (tex.id == 0) {
-             logger.writeError(MyStr("Failed to create texture from image: ") + path);
-             UnloadImage(img);
-             continue;
-         }*/
         YouDiedFrames.push_back(tex);
         UnloadImage(img);
     }
@@ -240,20 +230,23 @@ int main() {
 
     LoadTitleFrames();
     LoadMenuFrames();
+    LoadYouDiedFrames();
 	//framesLoaded = true;
 
 
 
 	//audio initialization-------------------------------
     InitAudioDevice();
-    Music bgMusic = LoadMusicStream("C:/Users/User/Downloads/Music/Little Nightmares 2 OST Track 1 - Little Nightmares II Main Theme_2.mp3");   // For background music
+    Music bgMusic = LoadMusicStream("C:/Users/User/Downloads/Music/Little Nightmares 2 OST Track 1 - Little Nightmares II Main Theme_2.mp3");  
     PlayMusicStream(bgMusic);
     bgMusic.looping = true;
+
+	Music youDiedMusic = LoadMusicStream("C:/Github Repositories/Trap-Adventure-Game/AudioFiles/YOU DIED (HD).mp3");
     //------------------------------------------------------------
 
     GameStates Current_State = Title;
 
-    //For Title Screen
+    //For Title Screen-------------------
     int framecount = 0;
     int currentFrame = 0;
     float frameTimer = 0.0f;
@@ -264,6 +257,13 @@ int main() {
     float menuFadeOpacity = 0.0f;
     int menuCurrentFrame = 0;
     float menuFrameTimer = 0.0f;
+
+    //For YouDied Screen
+    float youDiedFrameTimer = 0.0f;
+    int youDiedCurrentFrame = 0;
+    bool youDiedMusicStarted = false;
+    //-----------------------------------
+
 
     //For level 1 Loading
     float loadingLevel1Timer = 0.0f;
@@ -358,6 +358,9 @@ int main() {
 	//===============================================================================================
 
 
+	// You Died Sequence Variables========================================================
+    
+	//====================================================================================/
 
     bool exit = false;
     while (!WindowShouldClose() && exit == false) {
@@ -377,6 +380,12 @@ int main() {
         if (menuFrameTimer >= 1.0f / FRAME_RATE) {
             menuFrameTimer = 0.0f;
             menuCurrentFrame = (menuCurrentFrame + 1) % TOTAL_MENU_FRAMES;
+        }
+
+        youDiedFrameTimer += GetFrameTime();
+        if (youDiedFrameTimer >= 1.0f / FRAME_RATE) {
+            youDiedFrameTimer = 0.0f;
+            youDiedCurrentFrame++; 
         }
 
 
@@ -648,8 +657,6 @@ int main() {
                 musicButton.Draw();
             }
 
-            
-
 
             if(Game::getInstance()->getPlayer()->IsEntityActive()){
 
@@ -693,16 +700,37 @@ int main() {
 
             }
 
+            if (Game::getInstance()->getPlayer()->getLives() == 0) {
+                Current_State = You_Died;
+            }
+
 
             break;
         }
         case You_Died: {
-            ClearBackground(BLACK);
-            DrawText("You Died!", (GetScreenWidth() - MeasureText("You Died!", 70)) / 2, (GetScreenHeight() / 2) - 100, 70, RED);
-            DrawText("Press R to Restart", (GetScreenWidth() - MeasureText("Press R to Restart", 40)) / 2, (GetScreenHeight() / 2), 40, WHITE);
-            if (IsKeyPressed(KEY_R)) {
-                Current_State = Loading_Level_1;
-				loadingLevel1Timer = 0.0f;
+            if (youDiedCurrentFrame < TOTAL_YOUDIED_FRAMES) {
+                DrawTexture(YouDiedFrames[youDiedCurrentFrame], 0, 0, WHITE);
+            }
+
+            SetMusicVolume(bgMusic, 0.0f);
+
+            if (!youDiedMusicStarted) {
+                PlayMusicStream(youDiedMusic);
+                youDiedMusicStarted = true;
+            }
+
+            UpdateMusicStream(youDiedMusic);
+
+            if (youDiedCurrentFrame == TOTAL_YOUDIED_FRAMES) {
+                Current_State = Level_1;
+                SetMusicVolume(bgMusic, 1.0f);
+                StopMusicStream(youDiedMusic);
+                youDiedMusicStarted = false;
+                youDiedCurrentFrame = 0;
+            }
+
+            break;
+        }
 
         }
 

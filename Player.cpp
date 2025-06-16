@@ -186,7 +186,7 @@ void Player::UpdatePosition(float dx, float dy, const Dungeon* dungeon, const ve
                 damageTimer = 0.0f;
                 TakingDamage = true;
                 damageTintTimer = 1.0f;
-				this->takeDamage(10); 
+				this->takeDamage(50); 
                 break;
             }
         }
